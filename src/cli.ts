@@ -28,8 +28,9 @@ program
       const ctx = await loadLocalProject(path);
       printBanner();
       printProgress(ctx);
-      printDetection(await detectProject(ctx));
-      const findings = await runRules(ctx);
+      const detection = await detectProject(ctx);
+      printDetection(detection);
+      const findings = await runRules(ctx, detection);
       printFindings(findings);
       printSummary(findings, Date.now() - start);
     } catch (err) {

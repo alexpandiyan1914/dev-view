@@ -1,4 +1,5 @@
 export type Severity = "pass" | "info" | "warning" | "error";
+export type EcosystemId = "node" | "python";
 
 export interface Finding {
   ruleId: string;
@@ -36,7 +37,7 @@ export interface Technology {
 }
 
 export interface DetectedEcosystem {
-  id: "node" | "python";
+  id: EcosystemId;
   name: string;
   evidence: string[];
   technologies: Technology[];
