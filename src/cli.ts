@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import { loadLocalProject } from "./input/local.js";
 import { detectProject } from "./detectors/index.js";
-import { checkReadme } from "./rules/universal/readme.js";
+import { runRules } from "./rules/index.js";
 import {
   printBanner,
   printProgress,
@@ -29,7 +29,7 @@ program
       printBanner();
       printProgress(ctx);
       printDetection(await detectProject(ctx));
-      const findings = [checkReadme(ctx)];
+      const findings = await runRules(ctx);
       printFindings(findings);
       printSummary(findings, Date.now() - start);
     } catch (err) {
