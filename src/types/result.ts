@@ -1,4 +1,5 @@
 export type Severity = "pass" | "info" | "warning" | "error";
+export type EcosystemId = "node" | "python";
 
 export interface Finding {
   ruleId: string;
@@ -25,6 +26,8 @@ export interface ProjectContext {
   /** Files Git tracks. null when this is not a Git repo or Git could not be run. */
   trackedFiles: string[] | null;
   /** true when the scan stopped early because the project is very large. */
+  ignoredFiles: Set<string> | null;
+  /** Untracked files that .gitignore covers. null when Git could not be asked. */
   truncated: boolean;
 }
 
@@ -34,7 +37,7 @@ export interface Technology {
 }
 
 export interface DetectedEcosystem {
-  id: "node" | "python";
+  id: EcosystemId;
   name: string;
   evidence: string[];
   technologies: Technology[];

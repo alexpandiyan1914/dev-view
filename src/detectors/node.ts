@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readPackageJson, keysOf, type PackageJson } from "../core/package-json.js";
 import type { DetectedEcosystem, ProjectContext, Technology } from "../types/result.js";
 
 const KNOWN_DEPENDENCIES: Array<{ dep: string; tech: Technology }> = [
@@ -12,25 +11,10 @@ const KNOWN_DEPENDENCIES: Array<{ dep: string; tech: Technology }> = [
   { dep: "@nestjs/core", tech: { id: "nestjs", name: "NestJS" } },
 ];
 
-async function readPackageJson(root: string): Promise<Record<string, unknown> | null> {
-  try {
-    const parsed: unknown = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
-    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-    return null;
-  } catch {
-    return null; // broken JSON must never crash detection
-  }
-}
-
-function dependencyNames(pkg: Record<string, unknown>): Set<string> {
+function dependencyNames(pkg: PackageJson): Set<string> {
   const names = new Set<string>();
   for (const field of ["dependencies", "devDependencies", "peerDependencies"]) {
-    const value = pkg[field];
-    if (value && typeof value === "object") {
-      for (const name of Object.keys(value)) names.add(name);
-    }
+    for (const name of keysOf(pkg[field])) names.add(name);
   }
   return names;
 }
@@ -40,8 +24,8 @@ export async function detectNode(ctx: ProjectContext): Promise<DetectedEcosystem
   if (!rootFiles.has("package.json")) return null;
 
   const technologies: Technology[] = [];
-  const pkg = await readPackageJson(ctx.rootPath);
-  const deps = pkg ? dependencyNames(pkg) : new Set<string>();
+  const result = await readPackageJson(ctx.rootPath);
+  const deps = result.ok ? dependencyNames(result.data) : new Set<string>();
 
   if (deps.has("typescript") || rootFiles.has("tsconfig.json")) {
     technologies.push({ id: "typescript", name: "TypeScript" });
