@@ -1,5 +1,6 @@
 import pc from "picocolors";
-import type { Detection, Finding, ProjectContext } from "../types/result.js";
+import type { Detection, EcosystemId, Finding, ProjectContext } from "../types/result.js";
+import type { Rule } from "./rule.js";
 
 const LINE = "─".repeat(44);
 
@@ -79,4 +80,24 @@ export function printSummary(findings: Finding[], ms: number): void {
     });
   }
   console.log(pc.dim(`\nDev View completed in ${(ms / 1000).toFixed(1)}s\n`));
+}
+
+const ECOSYSTEM_LABELS: Record<EcosystemId, string> = { node: "Node.js", python: "Python" };
+
+export function printRuleList(rules: Rule[]): void {
+  const groups = new Map<string, Rule[]>();
+  for (const rule of rules) {
+    const label = rule.ecosystem ? ECOSYSTEM_LABELS[rule.ecosystem] : "Universal";
+    groups.set(label, [...(groups.get(label) ?? []), rule]);
+  }
+
+  for (const [label, list] of groups) {
+    console.log(pc.bold(label));
+    console.log(pc.dim(LINE));
+    for (const rule of list) {
+      console.log(`  ${pc.cyan(rule.id.padEnd(24))} ${rule.description}`);
+    }
+    console.log();
+  }
+  console.log(pc.dim(`${rules.length} rules\n`));
 }
