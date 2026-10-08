@@ -1,0 +1,4 @@
+# web framework
+fastapi==0.110.0
+flask-cors==4.0.0
+uvicorn
