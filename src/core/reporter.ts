@@ -13,10 +13,17 @@ export function printProgress(ctx: ProjectContext): void {
   console.log("Scanning project...");
   console.log(pc.green("✓ Project directory detected"));
   console.log(
-    ctx.hasGit
-      ? pc.green("✓ Git repository detected")
-      : pc.yellow("⚠ Git repository not detected"),
+    ctx.truncated
+      ? pc.yellow(`⚠ Scanned ${ctx.files.length} files (project is large, scan stopped at the limit)`)
+      : pc.green(`✓ Scanned ${ctx.files.length} ${ctx.files.length === 1 ? "file" : "files"}`),
   );
+  if (!ctx.hasGit) {
+    console.log(pc.yellow("⚠ Git repository not detected"));
+  } else if (ctx.trackedFiles) {
+    console.log(pc.green(`✓ Git repository detected (${ctx.trackedFiles.length} tracked files)`));
+  } else {
+    console.log(pc.yellow("⚠ Git repository detected, but tracked files could not be read"));
+  }
   console.log();
 }
 

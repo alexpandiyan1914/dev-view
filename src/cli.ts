@@ -15,10 +15,10 @@ program
   .command("local")
   .description("Analyze the project in the current (or given) directory")
   .argument("[path]", "path to the project", ".")
-  .action((path: string) => {
+  .action(async (path: string) => {
     const start = Date.now();
     try {
-      const ctx = loadLocalProject(path);
+      const ctx = await loadLocalProject(path);
       printBanner();
       printProgress(ctx);
       const findings = [checkReadme(ctx)];
@@ -38,4 +38,4 @@ program
     console.log(`Remote analysis of ${url} is not implemented yet.`);
   });
 
-program.parse();
+await program.parseAsync();
