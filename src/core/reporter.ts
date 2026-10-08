@@ -1,5 +1,5 @@
 import pc from "picocolors";
-import type { Finding, ProjectContext } from "../types/result.js";
+import type { Detection, Finding, ProjectContext } from "../types/result.js";
 
 const LINE = "─".repeat(44);
 
@@ -23,6 +23,21 @@ export function printProgress(ctx: ProjectContext): void {
     console.log(pc.green(`✓ Git repository detected (${ctx.trackedFiles.length} tracked files)`));
   } else {
     console.log(pc.yellow("⚠ Git repository detected, but tracked files could not be read"));
+  }
+  console.log();
+}
+
+export function printDetection(detection: Detection): void {
+  console.log("Detecting technologies...");
+  if (detection.ecosystems.length === 0) {
+    console.log(pc.blue("ℹ No supported ecosystem detected"));
+    console.log(pc.dim("  Running universal project and Git checks only."));
+  }
+  for (const eco of detection.ecosystems) {
+    console.log(`${pc.green("✓")} ${eco.name} ${pc.dim(`(${eco.evidence.join(", ")})`)}`);
+    for (const tech of eco.technologies) {
+      console.log(`${pc.green("✓")} ${tech.name}`);
+    }
   }
   console.log();
 }

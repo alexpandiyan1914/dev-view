@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { loadLocalProject } from "./input/local.js";
+import { detectProject } from "./detectors/index.js";
 import { checkReadme } from "./rules/universal/readme.js";
-import { printBanner, printProgress, printFindings, printSummary } from "./core/reporter.js";
+import {
+  printBanner,
+  printProgress,
+  printDetection,
+  printFindings,
+  printSummary,
+} from "./core/reporter.js";
 
 const program = new Command();
 
@@ -21,6 +28,7 @@ program
       const ctx = await loadLocalProject(path);
       printBanner();
       printProgress(ctx);
+      printDetection(await detectProject(ctx));
       const findings = [checkReadme(ctx)];
       printFindings(findings);
       printSummary(findings, Date.now() - start);

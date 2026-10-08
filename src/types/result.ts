@@ -27,3 +27,19 @@ export interface ProjectContext {
   /** true when the scan stopped early because the project is very large. */
   truncated: boolean;
 }
+
+export interface Technology {
+  id: string;
+  name: string;
+}
+
+export interface DetectedEcosystem {
+  id: "node" | "python";
+  name: string;
+  evidence: string[];
+  technologies: Technology[];
+}
+
+export interface Detection {
+  ecosystems: DetectedEcosystem[];
+}
