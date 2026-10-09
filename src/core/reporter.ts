@@ -1,6 +1,8 @@
 import pc from "picocolors";
-import type { Detection, Finding, ProjectContext } from "../types/result.js";
-
+import type { Detection, EcosystemId, Finding, ProjectContext } from "../types/result.js";
+import type { Rule } from "./rule.js";
+import { ERROR_PENALTY, WARNING_PENALTY, type Score } from "./scorer.js";
+import { SEVERITY_RANK, needsGuidance } from "./severity.js";
 const LINE = "─".repeat(44);
 
 export function printBanner(): void {
@@ -49,6 +51,11 @@ const ICONS = {
   error: pc.red("✗"),
 } as const;
 
+/** Most serious first. Array.sort is stable, so equal severities keep their original order. */
+function bySeverity(findings: Finding[]): Finding[] {
+  return [...findings].sort((a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity]);
+}
+
 export function printFindings(findings: Finding[]): void {
   console.log("Running checks...\n");
   const categories = [...new Set(findings.map((f) => f.category))];
@@ -56,27 +63,80 @@ export function printFindings(findings: Finding[]): void {
   for (const category of categories) {
     console.log(pc.bold(category));
     console.log(pc.dim(LINE));
-    for (const f of findings.filter((x) => x.category === category)) {
+    for (const f of bySeverity(findings.filter((x) => x.category === category))) {
       console.log(`${ICONS[f.severity]} ${f.title}`);
     }
     console.log();
   }
 }
 
-export function printSummary(findings: Finding[], ms: number): void {
-  const count = (s: Finding["severity"]) => findings.filter((f) => f.severity === s).length;
-  console.log(pc.dim(LINE));
-  console.log(`${pc.green(`✓ ${count("pass")} passed`)}  ${pc.yellow(`⚠ ${count("warning")} warnings`)}  ${pc.red(`✗ ${count("error")} errors`)}`);
+const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-  const toFix = findings.filter((f) => f.severity === "warning" || f.severity === "error");
+function scoreColor(value: number): (text: string) => string {
+  if (value >= 90) return pc.green;
+  if (value >= 70) return pc.yellow;
+  return pc.red;
+}
+
+function scoreBreakdown(score: Score): string {
+  const parts = ["100"];
+  if (score.errors > 0) {
+    parts.push(`− ${score.errors * ERROR_PENALTY} (${plural(score.errors, "error")} × ${ERROR_PENALTY})`);
+  }
+  if (score.warnings > 0) {
+    parts.push(`− ${score.warnings * WARNING_PENALTY} (${plural(score.warnings, "warning")} × ${WARNING_PENALTY})`);
+  }
+  return parts.join(" ");
+}
+
+function verdict(score: Score): string {
+  if (score.errors > 0) return "Fix the errors first. They are the problems that can hurt you most.";
+  if (score.warnings > 0) return "No errors. A few improvements will take you to 100.";
+  return "Everything looks good. Nice work!";
+}
+
+export function printSummary(findings: Finding[], score: Score, ms: number): void {
+  const passed = findings.filter((f) => f.severity === "pass").length;
+
+  console.log(pc.dim(LINE));
+  console.log(
+    `${pc.green(`✓ ${passed} passed`)}  ${pc.yellow(`⚠ ${plural(score.warnings, "warning")}`)}  ${pc.red(`✗ ${plural(score.errors, "error")}`)}`,
+  );
+
+  const toFix = bySeverity(findings.filter((f) => needsGuidance(f.severity)));
   if (toFix.length > 0) {
-    console.log(`\n${pc.bold("WHAT TO FIX")}`);
+    console.log(`\n${pc.bold("WHAT TO FIX")} ${pc.dim("(most serious first)")}`);
     console.log(pc.dim(LINE));
     toFix.forEach((f, i) => {
-      console.log(`\n${i + 1}. ${f.title}`);
+      console.log(`\n${i + 1}. ${ICONS[f.severity]} ${f.title}`);
       if (f.why) console.log(`   ${pc.bold("Why:")} ${f.why}`);
       if (f.suggestion) console.log(`   ${pc.bold("Suggestion:")} ${f.suggestion}`);
     });
   }
+
+  console.log(`\n${pc.dim(LINE)}`);
+  console.log(`${pc.bold("Score:")} ${scoreColor(score.value)(`${score.value}/100`)}`);
+  if (score.deducted > 0) console.log(pc.dim(`  ${scoreBreakdown(score)}`));
+  console.log(verdict(score));
   console.log(pc.dim(`\nDev View completed in ${(ms / 1000).toFixed(1)}s\n`));
+}
+
+const ECOSYSTEM_LABELS: Record<EcosystemId, string> = { node: "Node.js", python: "Python" };
+
+export function printRuleList(rules: Rule[]): void {
+  const groups = new Map<string, Rule[]>();
+  for (const rule of rules) {
+    const label = rule.ecosystem ? ECOSYSTEM_LABELS[rule.ecosystem] : "Universal";
+    groups.set(label, [...(groups.get(label) ?? []), rule]);
+  }
+
+  for (const [label, list] of groups) {
+    console.log(pc.bold(label));
+    console.log(pc.dim(LINE));
+    for (const rule of list) {
+      console.log(`  ${pc.cyan(rule.id.padEnd(24))} ${rule.description}`);
+    }
+    console.log();
+  }
+  console.log(pc.dim(`${rules.length} rules\n`));
 }

@@ -2,12 +2,15 @@
 import { Command } from "commander";
 import { loadLocalProject } from "./input/local.js";
 import { detectProject } from "./detectors/index.js";
-import { runRules } from "./rules/index.js";
+import { runRules } from "./core/engine.js";
+import { RULES } from "./rules/registry.js";
+import { calculateScore } from "./core/scorer.js";
 import {
   printBanner,
   printProgress,
   printDetection,
   printFindings,
+  printRuleList,
   printSummary,
 } from "./core/reporter.js";
 
@@ -32,11 +35,19 @@ program
       printDetection(detection);
       const findings = await runRules(ctx, detection);
       printFindings(findings);
-      printSummary(findings, Date.now() - start);
+      printSummary(findings, calculateScore(findings), Date.now() - start);
     } catch (err) {
       console.error(`✗ ${(err as Error).message}`);
       process.exitCode = 1;
     }
+  });
+
+program
+  .command("rules")
+  .description("List every check Dev View can run")
+  .action(() => {
+    printBanner();
+    printRuleList(RULES);
   });
 
 program
