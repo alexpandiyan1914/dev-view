@@ -10,7 +10,7 @@ export interface ScanResult {
   truncated: boolean;
 }
 
-export async function scanDirectory(root: string): Promise<ScanResult> {
+export async function scanDirectory(root: string, maxFiles: number = MAX_FILES): Promise<ScanResult> {
   const files: FileEntry[] = [];
   let truncated = false;
 
@@ -23,7 +23,7 @@ export async function scanDirectory(root: string): Promise<ScanResult> {
     }
 
     for (const entry of entries) {
-      if (files.length >= MAX_FILES) {
+      if (files.length >= maxFiles) {
         truncated = true;
         return;
       }
@@ -39,7 +39,7 @@ export async function scanDirectory(root: string): Promise<ScanResult> {
           const info = await stat(abs);
           files.push({ path: rel, size: info.size });
         } catch {
-            
+
         }
       }
     }

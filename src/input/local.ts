@@ -4,7 +4,10 @@ import type { ProjectContext } from "../types/result.js";
 import { scanDirectory } from "../core/scanner.js";
 import { getIgnoredFiles, getTrackedFiles } from "./git.js";
 
-export async function loadLocalProject(path: string = "."): Promise<ProjectContext> {
+export async function loadLocalProject(
+  path: string = ".",
+  displayName?: string,
+): Promise<ProjectContext> {
   const rootPath = resolve(path);
 
   if (!existsSync(rootPath) || !statSync(rootPath).isDirectory()) {

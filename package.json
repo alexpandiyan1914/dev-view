@@ -3,26 +3,40 @@
   "version": "0.1.0",
   "description": "A clear view of your project.",
   "type": "module",
-  "bin": { "dev-view": "./dist/cli.js" },
-  "files": ["dist"],
-  "engines": { "node": ">=20" },
+  "bin": {
+    "dev-view": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "tsx src/cli.ts",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
-  "keywords": ["cli", "project-health", "repository", "developer-tools"],
-  "author": "Your Name",
+  "keywords": [
+    "cli",
+    "project-health",
+    "repository",
+    "developer-tools"
+  ],
+  "author": "Alexpandiyan",
   "license": "MIT",
   "dependencies": {
     "commander": "^14.0.3",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^22.0.0",
     "tsup": "^8.5.1",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }
