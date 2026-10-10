@@ -23,11 +23,8 @@ export class RemoteError extends Error {
 }
 
 export interface RepoRef {
-  /** The address we give to `git clone`. */
   cloneUrl: string;
-  /** The clean address we show to the user. */
   displayUrl: string;
-  /** The repository name, e.g. "dev-view". */
   name: string;
 }
 
@@ -101,7 +98,7 @@ export function parseRepoUrl(input: string): RepoRef {
 }
 
 /** Turns Git's raw error output into a clear, actionable message. */
-function explainCloneFailure(error: unknown): RemoteError {
+export function explainCloneFailure(error: unknown): RemoteError {
   const err = error as { code?: unknown; killed?: boolean; signal?: string; stderr?: string };
 
   if (err.code === "ENOENT") {

@@ -100,7 +100,7 @@ export function checkLargeFiles(ctx: ProjectContext): Finding[] {
       ruleId: "artifacts.large-file",
       category: "Artifacts",
       severity: "info",
-      title: `...and ${large.length - MAX_LISTED} more large files`,
+      title: `...and ${large.length - MAX_LISTED} more large ${large.length - MAX_LISTED === 1 ? "file" : "files"}`,
       message: "Only the largest files are listed",
     });
   }
