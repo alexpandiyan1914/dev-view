@@ -1,76 +1,42 @@
 import pc from "picocolors";
-import type { Detection, EcosystemId, Finding, ProjectContext } from "../types/result.js";
+import type {
+  Detection,
+  EcosystemId,
+  Finding,
+  ProjectContext,
+} from "../types/result.js";
 import type { Rule } from "./rule.js";
 import { ERROR_PENALTY, WARNING_PENALTY, type Score } from "./scorer.js";
 import { SEVERITY_RANK, needsGuidance } from "./severity.js";
-const LINE = "─".repeat(44);
+import type { RemoteError } from "../input/remote.js";
 
-export function printBanner(): void {
-  console.log(pc.bold(pc.cyan("\nDEV VIEW")));
-  console.log(pc.dim("A clear view of your project.\n"));
-}
+const WIDTH = 56;
+const LINE = "─".repeat(WIDTH);
+const BAR_WIDTH = 24;
+const INDENT = "  ";
 
-export function printProgress(ctx: ProjectContext): void {
-  console.log(`Analyzing: ${pc.bold(ctx.name)}\n`);
-  console.log("Scanning project...");
-  console.log(pc.green("✓ Project directory detected"));
-  console.log(
-    ctx.truncated
-      ? pc.yellow(`⚠ Scanned ${ctx.files.length} files (project is large, scan stopped at the limit)`)
-      : pc.green(`✓ Scanned ${ctx.files.length} ${ctx.files.length === 1 ? "file" : "files"}`),
-  );
-  if (!ctx.hasGit) {
-    console.log(pc.yellow("⚠ Git repository not detected"));
-  } else if (ctx.trackedFiles) {
-    console.log(pc.green(`✓ Git repository detected (${ctx.trackedFiles.length} tracked files)`));
-  } else {
-    console.log(pc.yellow("⚠ Git repository detected, but tracked files could not be read"));
-  }
-  console.log();
-}
-
-export function printDetection(detection: Detection): void {
-  console.log("Detecting technologies...");
-  if (detection.ecosystems.length === 0) {
-    console.log(pc.blue("ℹ No supported ecosystem detected"));
-    console.log(pc.dim("  Running universal project and Git checks only."));
-  }
-  for (const eco of detection.ecosystems) {
-    console.log(`${pc.green("✓")} ${eco.name} ${pc.dim(`(${eco.evidence.join(", ")})`)}`);
-    for (const tech of eco.technologies) {
-      console.log(`${pc.green("✓")} ${tech.name}`);
-    }
-  }
-  console.log();
-}
+const plural = (n: number, word: string): string =>
+  `${n} ${word}${n === 1 ? "" : "s"}`;
 
 const ICONS = {
-  pass: pc.green("✓"),
+  pass: pc.green("✔"),
   info: pc.blue("ℹ"),
   warning: pc.yellow("⚠"),
-  error: pc.red("✗"),
+  error: pc.red("✖"),
+  bullet: pc.dim("▪"),
+  arrow: pc.cyan("➜"),
 } as const;
 
-/** Most serious first. Array.sort is stable, so equal severities keep their original order. */
-function bySeverity(findings: Finding[]): Finding[] {
-  return [...findings].sort((a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity]);
+const canAnimate =
+  Boolean(process.stdout.isTTY) &&
+  !process.env.CI &&
+  !process.env.NO_COLOR &&
+  process.env.TERM !== "dumb";
+
+function heading(title: string): void {
+  console.log(`\n${INDENT}${pc.bold(pc.cyan(title.toUpperCase()))}`);
+  console.log(`${INDENT}${pc.dim(LINE)}`);
 }
-
-export function printFindings(findings: Finding[]): void {
-  console.log("Running checks...\n");
-  const categories = [...new Set(findings.map((f) => f.category))];
-
-  for (const category of categories) {
-    console.log(pc.bold(category));
-    console.log(pc.dim(LINE));
-    for (const f of bySeverity(findings.filter((x) => x.category === category))) {
-      console.log(`${ICONS[f.severity]} ${f.title}`);
-    }
-    console.log();
-  }
-}
-
-const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 function scoreColor(value: number): (text: string) => string {
   if (value >= 90) return pc.green;
@@ -78,65 +44,291 @@ function scoreColor(value: number): (text: string) => string {
   return pc.red;
 }
 
+function scoreBar(value: number): string {
+  const safeValue = Math.max(0, Math.min(100, value));
+  const filled = Math.round((safeValue / 100) * BAR_WIDTH);
+  const empty = BAR_WIDTH - filled;
+
+  return (
+    pc.dim("[") +
+    scoreColor(safeValue)("█".repeat(filled)) +
+    pc.dim("░".repeat(empty)) +
+    pc.dim("]")
+  );
+}
+
+
+export async function printBanner(): Promise<void> {
+  if (canAnimate) {
+    const frames = [pc.cyan("◐"), pc.cyan("◓"), pc.cyan("◑"), pc.cyan("◒")];
+
+    for (const frame of frames) {
+      process.stdout.write(
+        `\r${INDENT}${frame} ${pc.bold("DEV VIEW")} ${pc.dim("Preparing your project report...")}`,
+      );
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 65));
+    }
+
+    process.stdout.write("\r\x1B[2K");
+  }
+
+  console.log();
+  console.log(
+    `${INDENT}${pc.bgCyan(pc.black(pc.bold(" DEV VIEW ")))} ${pc.dim("v0.1.0")}`,
+  );
+  console.log(`${INDENT}${pc.dim("A clear view of your project.")}`);
+  console.log(`${INDENT}${pc.dim(LINE)}`);
+}
+
+/**
+ * Project scan overview.
+ */
+export function printProgress(ctx: ProjectContext): void {
+  heading("Project overview");
+
+  console.log(`${INDENT}${pc.dim("Project")}      ${pc.bold(ctx.name)}`);
+  console.log(
+    `${INDENT}${ICONS.pass} ${plural(ctx.files.length, "file")} scanned` +
+    (ctx.truncated ? pc.yellow(" (scan limit reached)") : ""),
+  );
+
+  if (!ctx.hasGit) {
+    console.log(`${INDENT}${ICONS.warning} Git repository not detected`);
+  } else if (ctx.trackedFiles) {
+    console.log(
+      `${INDENT}${ICONS.pass} Git repository` +
+      pc.dim(` · ${plural(ctx.trackedFiles.length, "tracked file")}`),
+    );
+  } else {
+    console.log(
+      `${INDENT}${ICONS.warning} Git detected, but tracked files could not be read`,
+    );
+  }
+}
+
+/**
+ * Technology detection results.
+ */
+export function printDetection(detection: Detection): void {
+  heading("Detected technologies");
+
+  if (detection.ecosystems.length === 0) {
+    console.log(`${INDENT}${ICONS.info} No supported ecosystem detected`);
+    console.log(`${INDENT}  ${pc.dim("Universal and Git checks will still run.")}`);
+    return;
+  }
+
+  for (const eco of detection.ecosystems) {
+    console.log(
+      `${INDENT}${pc.bold(eco.name)} ${pc.dim(`(${eco.evidence.join(", ")})`)}`,
+    );
+
+    for (const tech of eco.technologies) {
+      console.log(`${INDENT}  ${ICONS.bullet} ${tech.name}`);
+    }
+  }
+}
+
+/** Keep findings ordered by severity, preserving order for ties. */
+function bySeverity(findings: Finding[]): Finding[] {
+  return [...findings].sort(
+    (a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity],
+  );
+}
+
+/**
+ * Display results grouped by category.
+ * If not verbose, shows a concise summary line instead.
+ */
+export function printFindings(findings: Finding[], verbose: boolean = false): void {
+  const categories = [...new Set(findings.map((f) => f.category))];
+
+  if (findings.length === 0) {
+    console.log(`\n${INDENT}${ICONS.info} No findings were returned by the checks.`);
+    return;
+  }
+
+  //The concise state
+  if (!verbose) {
+    console.log(
+      `\n${INDENT}${pc.dim("▶")} ${pc.bold("Analysis results")} ` +
+      pc.dim(`(${findings.length} findings hidden — run with ${pc.cyan("--verbose")} to view)`)
+    );
+    return;
+  }
+
+  //The expanded state
+  heading("Analysis results");
+
+  for (const category of categories) {
+    console.log(`\n${INDENT}${pc.bold(category)}`);
+
+    for (const finding of bySeverity(
+      findings.filter((item) => item.category === category),
+    )) {
+      console.log(`${INDENT}  ${ICONS[finding.severity]} ${pc.dim(finding.title)}`);
+    }
+  }
+}
+
 function scoreBreakdown(score: Score): string {
   const parts = ["100"];
+
   if (score.errors > 0) {
-    parts.push(`− ${score.errors * ERROR_PENALTY} (${plural(score.errors, "error")} × ${ERROR_PENALTY})`);
+    parts.push(
+      `− ${score.errors * ERROR_PENALTY} (${plural(score.errors, "error")} × ${ERROR_PENALTY})`,
+    );
   }
+
   if (score.warnings > 0) {
-    parts.push(`− ${score.warnings * WARNING_PENALTY} (${plural(score.warnings, "warning")} × ${WARNING_PENALTY})`);
+    parts.push(
+      `− ${score.warnings * WARNING_PENALTY} (${plural(score.warnings, "warning")} × ${WARNING_PENALTY})`,
+    );
   }
+
   return parts.join(" ");
 }
 
 function verdict(score: Score): string {
-  if (score.errors > 0) return "Fix the errors first. They are the problems that can hurt you most.";
-  if (score.warnings > 0) return "No errors. A few improvements will take you to 100.";
-  return "Everything looks good. Nice work!";
-}
-
-export function printSummary(findings: Finding[], score: Score, ms: number): void {
-  const passed = findings.filter((f) => f.severity === "pass").length;
-
-  console.log(pc.dim(LINE));
-  console.log(
-    `${pc.green(`✓ ${passed} passed`)}  ${pc.yellow(`⚠ ${plural(score.warnings, "warning")}`)}  ${pc.red(`✗ ${plural(score.errors, "error")}`)}`,
-  );
-
-  const toFix = bySeverity(findings.filter((f) => needsGuidance(f.severity)));
-  if (toFix.length > 0) {
-    console.log(`\n${pc.bold("WHAT TO FIX")} ${pc.dim("(most serious first)")}`);
-    console.log(pc.dim(LINE));
-    toFix.forEach((f, i) => {
-      console.log(`\n${i + 1}. ${ICONS[f.severity]} ${f.title}`);
-      if (f.why) console.log(`   ${pc.bold("Why:")} ${f.why}`);
-      if (f.suggestion) console.log(`   ${pc.bold("Suggestion:")} ${f.suggestion}`);
-    });
+  if (score.errors > 0) {
+    return pc.red("Fix the errors first. They are the highest-priority issues.");
   }
 
-  console.log(`\n${pc.dim(LINE)}`);
-  console.log(`${pc.bold("Score:")} ${scoreColor(score.value)(`${score.value}/100`)}`);
-  if (score.deducted > 0) console.log(pc.dim(`  ${scoreBreakdown(score)}`));
-  console.log(verdict(score));
-  console.log(pc.dim(`\nDev View completed in ${(ms / 1000).toFixed(1)}s\n`));
+  if (score.warnings > 0) {
+    return pc.yellow("No errors found. A few improvements could make this project stronger.");
+  }
+
+  return pc.green("Everything looks good. Nice work!");
 }
 
-const ECOSYSTEM_LABELS: Record<EcosystemId, string> = { node: "Node.js", python: "Python" };
+/**
+ * Final score, issue guidance, and completion time.
+ */
+export function printSummary(
+  findings: Finding[],
+  score: Score,
+  ms: number,
+): void {
+  const passed = findings.filter((f) => f.severity === "pass").length;
+  const info = findings.filter((f) => f.severity === "info").length;
 
+  heading("Project health");
+
+  // Summary Metrics
+  console.log(
+    `${INDENT}${ICONS.pass} ${passed} passed   ` +
+    `${ICONS.warning} ${plural(score.warnings, "warning")}   ` +
+    `${ICONS.error} ${plural(score.errors, "error")}`
+  );
+
+  if (info > 0) {
+    console.log(`${INDENT}${ICONS.info} ${plural(info, "informational finding")}`);
+  }
+
+  console.log();
+  console.log(
+    `${INDENT}${pc.bold("Score")}  ${scoreBar(score.value)} ${scoreColor(score.value)(`${score.value}/100`)}`
+  );
+
+  if (score.deducted > 0) {
+    console.log(`${INDENT}       ${pc.dim(scoreBreakdown(score))}`);
+  }
+
+  console.log(`\n${INDENT}${verdict(score)}`);
+
+  const toFix = bySeverity(
+    findings.filter((finding) => needsGuidance(finding.severity)),
+  );
+
+  // Recommendations with "Pipe/Quote" UI structure
+  if (toFix.length > 0) {
+    heading("Recommended improvements");
+
+    toFix.forEach((finding, index) => {
+      const number = String(index + 1).padStart(2, "0");
+      const titleColor = finding.severity === "error" ? pc.red : pc.yellow;
+      const pipe = pc.dim("│");
+
+      console.log(
+        `\n${INDENT}${pc.dim(number)} ${ICONS[finding.severity]} ${pc.bold(titleColor(finding.title))}`,
+      );
+
+      if (finding.why) {
+        console.log(`${INDENT}   ${pipe} ${pc.dim(pc.bold("WHY"))}`);
+        console.log(`${INDENT}   ${pipe} ${pc.dim(finding.why)}`);
+      }
+
+      if (finding.suggestion) {
+        if (finding.why) console.log(`${INDENT}   ${pipe}`); // spacer between why and suggestion
+        console.log(`${INDENT}   ${pipe} ${pc.bold("SUGGESTION")}`);
+        console.log(`${INDENT}   ${pipe} ${finding.suggestion}`);
+      }
+    });
+  } else {
+    console.log(
+      `\n${INDENT}${ICONS.pass} ${pc.green("No recommended fixes at this time.")}`,
+    );
+  }
+
+  console.log();
+  console.log(`${INDENT}${pc.dim(LINE)}`);
+  console.log(
+    `${INDENT}${ICONS.pass} ${pc.bold("Analysis complete")} ${pc.dim(`in ${(ms / 1000).toFixed(2)}s`)}`,
+  );
+  console.log();
+}
+
+const ECOSYSTEM_LABELS: Record<EcosystemId, string> = {
+  node: "Node.js",
+  python: "Python",
+};
+
+/**
+ * List all registered rules.
+ */
 export function printRuleList(rules: Rule[]): void {
   const groups = new Map<string, Rule[]>();
+
   for (const rule of rules) {
-    const label = rule.ecosystem ? ECOSYSTEM_LABELS[rule.ecosystem] : "Universal";
+    const label = rule.ecosystem
+      ? ECOSYSTEM_LABELS[rule.ecosystem]
+      : "Universal";
+
     groups.set(label, [...(groups.get(label) ?? []), rule]);
   }
 
+  heading("Available checks");
+
   for (const [label, list] of groups) {
-    console.log(pc.bold(label));
-    console.log(pc.dim(LINE));
+    console.log(`\n${INDENT}${pc.bold(pc.cyan(label))}`);
+
     for (const rule of list) {
-      console.log(`  ${pc.cyan(rule.id.padEnd(24))} ${rule.description}`);
+      console.log(
+        `${INDENT}  ${ICONS.bullet} ${pc.green(rule.id.padEnd(24))} ${pc.dim(rule.description)}`,
+      );
     }
-    console.log();
   }
-  console.log(pc.dim(`${rules.length} rules\n`));
+
+  console.log();
+  console.log(`${INDENT}${pc.dim(LINE)}`);
+  console.log(`${INDENT}${pc.dim(`${rules.length} rules available`)}`);
+  console.log();
+}
+
+export function printRemoteStart(url: string): void {
+  heading("Remote analysis");
+  console.log(`${INDENT}${pc.dim("Repository")}   ${pc.cyan(url)}`);
+  console.log(`${INDENT}${ICONS.arrow} Fetching repository...`);
+}
+
+export function printFetched(): void {
+  console.log(`${INDENT}${ICONS.pass} Repository fetched`);
+}
+
+export function printRemoteError(error: RemoteError): void {
+  console.error(`\n${INDENT}${ICONS.error} ${pc.bold(pc.red(error.title))}\n`);
+  console.error(`${INDENT}${error.details}\n`);
+  console.error(`${INDENT}${pc.bold("Suggestion")}`);
+  console.error(`${INDENT}${ICONS.arrow} ${error.suggestion}\n`);
 }
