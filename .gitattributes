@@ -1,0 +1,5 @@
+# Keep line endings the same on every machine, so scripts and the CLI entry file never break.
+* text=auto eol=lf
+
+*.png binary
+*.tgz binary

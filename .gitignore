@@ -1,7 +1,20 @@
+# dependencies and build output
 node_modules/
 dist/
+coverage/
+*.tgz
+
+# secrets
 .env
 .env.*
 !.env.example
-*.tgz
+
+# logs and caches
+*.log
+.vitest-cache/
+
+# operating system and editors
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
