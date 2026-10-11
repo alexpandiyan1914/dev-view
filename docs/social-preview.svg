@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#161b22"/></linearGradient>
+  <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#58a6ff" stop-opacity=".28"/><stop offset="1" stop-color="#58a6ff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#39c5cf"/><stop offset="1" stop-color="#58a6ff"/></linearGradient>
+  <linearGradient id="title" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#39c5cf"/><stop offset=".6" stop-color="#58a6ff"/><stop offset="1" stop-color="#bc8cff"/></linearGradient>
+</defs>
+<style>
+  .mono{font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
+  .sans{font-family:"DejaVu Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+</style>
+<rect width="1280" height="640" fill="url(#bg)"/>
+<circle cx="1040" cy="300" r="420" fill="url(#glow)"/>
+
+<!-- left column -->
+<g transform="translate(96 78)" fill="none" stroke="url(#mark)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M0 28V10a10 10 0 0 1 10-10h18"/><path d="M74 0h18a10 10 0 0 1 10 10v18"/>
+  <path d="M102 74v18a10 10 0 0 1-10 10H74"/><path d="M28 102H10a10 10 0 0 1-10-10V74"/>
+  <path d="M28 52l15 15 30-33"/>
+</g>
+<text x="96" y="284" class="mono" font-size="92" font-weight="700" letter-spacing="4" fill="url(#title)">DEV VIEW</text>
+<text x="100" y="342" class="sans" font-size="32" fill="#c9d1d9">A clear view of your project.</text>
+<text x="100" y="392" class="sans" font-size="24" fill="#8b949e">Finds problems, explains why they matter,</text>
+<text x="100" y="426" class="sans" font-size="24" fill="#8b949e">and tells you how to fix them.</text>
+
+<rect x="96" y="478" width="388" height="62" rx="12" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+<text x="124" y="518" class="mono" font-size="26" fill="#3fb950" font-weight="700">$</text>
+<text x="152" y="518" class="mono" font-size="26" fill="#f0f6fc">npx dev-view local</text>
+
+<!-- right column: a mini terminal card -->
+<g transform="translate(700 150)">
+  <rect width="480" height="340" rx="16" fill="#0d1117" stroke="#30363d" stroke-width="2"/>
+  <path d="M1 52V18a16 16 0 0 1 16-16h446a16 16 0 0 1 16 16v34z" fill="#161b22"/>
+  <circle cx="30" cy="26" r="7" fill="#ff5f56"/><circle cx="54" cy="26" r="7" fill="#ffbd2e"/><circle cx="78" cy="26" r="7" fill="#27c93f"/>
+  <g class="mono" font-size="19">
+    <text x="30" y="104" fill="#39c5cf" font-weight="700">PROJECT HEALTH</text>
+    <text x="30" y="148" fill="#ff7b72">✖</text><text x="62" y="148" fill="#ff7b72" font-weight="700">.env is tracked by Git</text>
+    <text x="30" y="184" fill="#d29922">⚠</text><text x="62" y="184" fill="#d29922" font-weight="700">No LICENSE file found</text>
+    <text x="30" y="220" fill="#3fb950">✔</text><text x="62" y="220" fill="#c9d1d9">README.md found</text>
+    <text x="30" y="256" fill="#3fb950">✔</text><text x="62" y="256" fill="#c9d1d9">Tests found</text>
+    <text x="30" y="316" fill="#f0f6fc" font-weight="700">Score</text>
+  </g>
+  <rect x="108" y="298" width="262" height="24" rx="4" fill="#21262d"/>
+  <rect x="108" y="298" width="228" height="24" rx="4" fill="#d29922"/>
+  <text x="384" y="317" class="mono" font-size="19" fill="#d29922" font-weight="700">87/100</text>
+</g>
+<text x="96" y="596" class="sans" font-size="21" fill="#6e7681">Open-source CLI  ·  Node.js and Python  ·  Local folders and public GitHub repos</text>
+</svg>

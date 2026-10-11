@@ -14,6 +14,7 @@ import { RemoteError } from "../src/input/remote.js";
 import { RULES } from "../src/rules/registry.js";
 import type { Finding, Severity } from "../src/types/result.js";
 import { cleanupProjects, createProject } from "./helpers/project.js";
+import { readFileSync } from "node:fs";
 
 afterAll(cleanupProjects);
 
@@ -143,8 +144,9 @@ function runCli(...args: string[]) {
 const tempFolders = (): string[] => readdirSync(tmpdir()).filter((name) => /^dev-view-[A-Za-z0-9]{6}$/.test(name));
 
 describe("the command line", () => {
-  it("prints the version", () => {
-    expect(runCli("--version").out.trim()).toBe("0.1.0");
+  it("prints the version from package.json", () => {
+    const { version } = JSON.parse(readFileSync("package.json", "utf8")) as { version: string };
+    expect(runCli("--version").out.trim()).toBe(version);
   });
 
   it("lists all three commands in --help", () => {
