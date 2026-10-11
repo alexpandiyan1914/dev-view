@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="210" viewBox="0 0 900 210" role="img" aria-labelledby="t d">
+<title id="t">Dev View</title>
+<desc id="d">Dev View: a clear view of your project. Find problems, understand why, fix them.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#161b22"/>
+  </linearGradient>
+  <linearGradient id="shine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="420" y2="0" spreadMethod="repeat">
+    <stop offset="0" stop-color="#39c5cf"/>
+    <stop offset=".34" stop-color="#58a6ff"/>
+    <stop offset=".67" stop-color="#bc8cff"/>
+    <stop offset="1" stop-color="#39c5cf"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="420 0" dur="7s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#39c5cf"/><stop offset="1" stop-color="#58a6ff"/>
+  </linearGradient>
+</defs>
+<style>
+  .mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono","DejaVu Sans Mono",monospace}
+  .sans{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+  .in{opacity:0;animation:in .9s ease forwards}
+  .d1{animation-delay:.4s}.d2{animation-delay:.9s}.d3{animation-delay:1.4s}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+  .dot{animation:pulse 2.4s ease-in-out infinite}
+  @media (prefers-reduced-motion:reduce){.in{animation:none;opacity:1}.dot{animation:none}}
+</style>
+<rect width="900" height="210" rx="14" fill="url(#bg)"/>
+<rect x=".5" y=".5" width="899" height="209" rx="13.5" fill="none" stroke="#30363d"/>
+
+<!-- logo mark: a viewfinder with a check inside -->
+<g transform="translate(70 58)" fill="none" stroke="url(#mark)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M0 22V8a8 8 0 0 1 8-8h14"/><path d="M58 0h14a8 8 0 0 1 8 8v14"/>
+  <path d="M80 58v14a8 8 0 0 1-8 8H58"/><path d="M22 80H8a8 8 0 0 1-8-8V58"/>
+  <path d="M22 41l12 12 24-26" stroke-width="7"/>
+</g>
+
+<text x="180" y="108" class="mono" font-size="64" font-weight="800" letter-spacing="3" fill="url(#shine)">DEV VIEW</text>
+<text x="182" y="146" class="sans in d1" font-size="20" fill="#8b949e">A clear view of your project.</text>
+
+<g class="mono" font-size="14" font-weight="600">
+  <text x="182" y="178" class="in d2" fill="#3fb950">find problems</text>
+  <text x="302" y="178" class="in d2" fill="#484f58">·</text>
+  <text x="322" y="178" class="in d3" fill="#d29922">understand why</text>
+  <text x="458" y="178" class="in d3" fill="#484f58">·</text>
+  <text x="478" y="178" class="in d3" fill="#58a6ff">fix them</text>
+</g>
+<circle class="dot" cx="852" cy="34" r="5" fill="#3fb950"/>
+</svg>

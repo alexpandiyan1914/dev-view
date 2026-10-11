@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="824" height="1096" viewBox="0 0 824 1096" role="img" aria-labelledby="t d">
+<title id="t">Dev View analyzing a project</title>
+<desc id="d">A terminal runs "npx dev-view local". Dev View reports one error (a committed .env file) and one warning (no LICENSE), and gives the project a score of 87 out of 100.</desc>
+<style>
+text{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono","DejaVu Sans Mono",monospace;font-size:13px;fill:#c9d1d9;white-space:pre}
+.b{font-weight:700}.d{fill:#8b949e}.ty{fill:#f0f6fc}.cur{fill:#58a6ff}
+.c30{fill:#0d1117}.c31{fill:#ff7b72}.c32{fill:#3fb950}.c33{fill:#d29922}.c34{fill:#58a6ff}.c35{fill:#bc8cff}.c36{fill:#39c5cf}.c37{fill:#f0f6fc}
+@keyframes k0{0%,5.014%{fill-opacity:0}5.024%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k1{0%,5.516%{fill-opacity:0}5.526%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k2{0%,6.017%{fill-opacity:0}6.027%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k3{0%,6.519%{fill-opacity:0}6.529%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k4{0%,7.020%{fill-opacity:0}7.030%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k5{0%,7.521%{fill-opacity:0}7.531%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k6{0%,8.023%{fill-opacity:0}8.033%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k7{0%,8.524%{fill-opacity:0}8.534%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k8{0%,9.026%{fill-opacity:0}9.036%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k9{0%,9.527%{fill-opacity:0}9.537%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k10{0%,10.029%{fill-opacity:0}10.039%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k11{0%,10.530%{fill-opacity:0}10.540%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k12{0%,11.032%{fill-opacity:0}11.042%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k13{0%,11.533%{fill-opacity:0}11.543%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k14{0%,12.034%{fill-opacity:0}12.044%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k15{0%,12.536%{fill-opacity:0}12.546%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k16{0%,13.037%{fill-opacity:0}13.047%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k17{0%,13.539%{fill-opacity:0}13.549%,94.269%{fill-opacity:1}100%{fill-opacity:0}}
+@keyframes k18{0%,2.149%{opacity:0}2.159%,17.980%{opacity:1}17.990%,100%{opacity:0}}
+@keyframes k19{0%,20.057%{opacity:0}20.067%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k20{0%,20.559%{opacity:0}20.569%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k21{0%,21.060%{opacity:0}21.070%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k22{0%,23.138%{opacity:0}23.148%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k23{0%,23.639%{opacity:0}23.649%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k24{0%,24.140%{opacity:0}24.150%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k25{0%,24.642%{opacity:0}24.652%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k26{0%,25.143%{opacity:0}25.153%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k27{0%,27.221%{opacity:0}27.231%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k28{0%,27.722%{opacity:0}27.732%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k29{0%,28.223%{opacity:0}28.233%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k30{0%,28.725%{opacity:0}28.735%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k31{0%,30.802%{opacity:0}30.812%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k32{0%,32.880%{opacity:0}32.890%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k33{0%,33.381%{opacity:0}33.391%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k34{0%,33.883%{opacity:0}33.893%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k35{0%,35.960%{opacity:0}35.970%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k36{0%,36.461%{opacity:0}36.471%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k37{0%,38.539%{opacity:0}38.549%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k38{0%,40.616%{opacity:0}40.626%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k39{0%,41.117%{opacity:0}41.127%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k40{0%,43.195%{opacity:0}43.205%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k41{0%,43.696%{opacity:0}43.706%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k42{0%,44.198%{opacity:0}44.208%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k43{0%,44.699%{opacity:0}44.709%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k44{0%,45.201%{opacity:0}45.211%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k45{0%,45.702%{opacity:0}45.712%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k46{0%,46.203%{opacity:0}46.213%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k47{0%,46.705%{opacity:0}46.715%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k48{0%,48.782%{opacity:0}48.792%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k49{0%,49.284%{opacity:0}49.294%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k50{0%,49.785%{opacity:0}49.795%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k51{0%,50.287%{opacity:0}50.297%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k52{0%,50.788%{opacity:0}50.798%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k53{0%,51.289%{opacity:0}51.299%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k54{0%,51.791%{opacity:0}51.801%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k55{0%,52.292%{opacity:0}52.302%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k56{0%,54.370%{opacity:0}54.380%,94.269%{opacity:1}100%{opacity:0}}
+@keyframes k57{0%,54.871%{opacity:0}54.881%,94.269%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){g,tspan,rect.cur{animation:none!important;opacity:1!important;fill-opacity:1!important}}
+</style>
+<rect x=".5" y=".5" width="823" height="1095" rx="10" fill="#0d1117" stroke="#30363d"/>
+<path d="M.5 38V10.5a10 10 0 0 1 10-10h803a10 10 0 0 1 10 10V38z" fill="#161b22"/>
+<line x1=".5" y1="38" x2="823.5" y2="38" stroke="#30363d"/>
+<circle cx="22" cy="19" r="6" fill="#ff5f56"/><circle cx="42" cy="19" r="6" fill="#ffbd2e"/><circle cx="62" cy="19" r="6" fill="#27c93f"/>
+<text x="412" y="23" text-anchor="middle" style="fill:#8b949e;font-size:12px">dev-view</text>
+<g><rect x="22" y="54" width="7.8" height="18" rx="1" class="cur" style="animation:k18 13.96s linear infinite"/><text x="22" y="68" xml:space="preserve"><tspan class="c32 b">$</tspan> <tspan class="ty" style="animation:k0 13.96s linear infinite">n</tspan><tspan class="ty" style="animation:k1 13.96s linear infinite">p</tspan><tspan class="ty" style="animation:k2 13.96s linear infinite">x</tspan><tspan class="ty" style="animation:k3 13.96s linear infinite"> </tspan><tspan class="ty" style="animation:k4 13.96s linear infinite">d</tspan><tspan class="ty" style="animation:k5 13.96s linear infinite">e</tspan><tspan class="ty" style="animation:k6 13.96s linear infinite">v</tspan><tspan class="ty" style="animation:k7 13.96s linear infinite">-</tspan><tspan class="ty" style="animation:k8 13.96s linear infinite">v</tspan><tspan class="ty" style="animation:k9 13.96s linear infinite">i</tspan><tspan class="ty" style="animation:k10 13.96s linear infinite">e</tspan><tspan class="ty" style="animation:k11 13.96s linear infinite">w</tspan><tspan class="ty" style="animation:k12 13.96s linear infinite"> </tspan><tspan class="ty" style="animation:k13 13.96s linear infinite">l</tspan><tspan class="ty" style="animation:k14 13.96s linear infinite">o</tspan><tspan class="ty" style="animation:k15 13.96s linear infinite">c</tspan><tspan class="ty" style="animation:k16 13.96s linear infinite">a</tspan><tspan class="ty" style="animation:k17 13.96s linear infinite">l</tspan></text></g>
+<g style="animation:k19 13.96s linear infinite"><rect x="37.60" y="94" width="78.00" height="19" fill="#39c5cf"/><text x="22" y="108" xml:space="preserve" textLength="148.20" lengthAdjust="spacing">  <tspan class="c30 b"> DEV VIEW </tspan> <tspan class="d">v0.1.0</tspan></text></g>
+<g style="animation:k20 13.96s linear infinite"><text x="22" y="128" xml:space="preserve" textLength="241.80" lengthAdjust="spacing">  <tspan class="d">A clear view of your project.</tspan></text></g>
+<g style="animation:k21 13.96s linear infinite"><text x="22" y="148" xml:space="preserve" textLength="452.40" lengthAdjust="spacing">  <tspan class="d">────────────────────────────────────────────────────────</tspan></text></g>
+<g style="animation:k22 13.96s linear infinite"><text x="22" y="188" xml:space="preserve" textLength="140.40" lengthAdjust="spacing">  <tspan class="c36 b">PROJECT OVERVIEW</tspan></text></g>
+<g style="animation:k23 13.96s linear infinite"><text x="22" y="208" xml:space="preserve" textLength="452.40" lengthAdjust="spacing">  <tspan class="d">────────────────────────────────────────────────────────</tspan></text></g>
+<g style="animation:k24 13.96s linear infinite"><text x="22" y="228" xml:space="preserve" textLength="163.80" lengthAdjust="spacing">  <tspan class="d">Project</tspan>      <tspan class="b">my-app</tspan></text></g>
+<g style="animation:k25 13.96s linear infinite"><text x="22" y="248" xml:space="preserve" textLength="148.20" lengthAdjust="spacing">  <tspan class="c32">✔</tspan> 7 files scanned</text></g>
+<g style="animation:k26 13.96s linear infinite"><text x="22" y="268" xml:space="preserve" textLength="280.80" lengthAdjust="spacing">  <tspan class="c32">✔</tspan> Git repository<tspan class="d"> · 7 tracked files</tspan></text></g>
+<g style="animation:k27 13.96s linear infinite"><text x="22" y="308" xml:space="preserve" textLength="179.40" lengthAdjust="spacing">  <tspan class="c36 b">DETECTED TECHNOLOGIES</tspan></text></g>
+<g style="animation:k28 13.96s linear infinite"><text x="22" y="328" xml:space="preserve" textLength="452.40" lengthAdjust="spacing">  <tspan class="d">────────────────────────────────────────────────────────</tspan></text></g>
+<g style="animation:k29 13.96s linear infinite"><text x="22" y="348" xml:space="preserve" textLength="187.20" lengthAdjust="spacing">  <tspan class="b">Node.js</tspan> <tspan class="d">(package.json)</tspan></text></g>
+<g style="animation:k30 13.96s linear infinite"><text x="22" y="368" xml:space="preserve" textLength="101.40" lengthAdjust="spacing">    <tspan class="d">▪</tspan> Express</text></g>
+<g style="animation:k31 13.96s linear infinite"><text x="22" y="408" xml:space="preserve" textLength="546.00" lengthAdjust="spacing">  <tspan class="d">▶</tspan> <tspan class="b">Analysis results</tspan> <tspan class="d">(15 findings hidden — run with </tspan><tspan class="c36 d">--verbose</tspan><tspan class="d"> to view)</tspan></text></g>
+<g style="animation:k32 13.96s linear infinite"><text x="22" y="448" xml:space="preserve" textLength="124.80" lengthAdjust="spacing">  <tspan class="c36 b">PROJECT HEALTH</tspan></text></g>
+<g style="animation:k33 13.96s linear infinite"><text x="22" y="468" xml:space="preserve" textLength="452.40" lengthAdjust="spacing">  <tspan class="d">────────────────────────────────────────────────────────</tspan></text></g>
+<g style="animation:k34 13.96s linear infinite"><text x="22" y="488" xml:space="preserve" textLength="304.20" lengthAdjust="spacing">  <tspan class="c32">✔</tspan> 13 passed   <tspan class="c33">⚠</tspan> 1 warning   <tspan class="c31">✖</tspan> 1 error</text></g>
+<g style="animation:k35 13.96s linear infinite"><text x="22" y="528" xml:space="preserve" textLength="327.60" lengthAdjust="spacing">  <tspan class="b">Score</tspan>  <tspan class="d">[</tspan><tspan class="c33">█████████████████████</tspan><tspan class="d">░░░</tspan><tspan class="d">]</tspan> <tspan class="c33">87/100</tspan></text></g>
+<g style="animation:k36 13.96s linear infinite"><text x="22" y="548" xml:space="preserve" textLength="405.60" lengthAdjust="spacing">         <tspan class="d">100 − 10 (1 error × 10) − 3 (1 warning × 3)</tspan></text></g>
+<g style="animation:k37 13.96s linear infinite"><text x="22" y="588" xml:space="preserve" textLength="475.80" lengthAdjust="spacing">  <tspan class="c31">Fix the errors first. They are the highest-priority issues.</tspan></text></g>
+<g style="animation:k38 13.96s linear infinite"><text x="22" y="628" xml:space="preserve" textLength="202.80" lengthAdjust="spacing">  <tspan class="c36 b">RECOMMENDED IMPROVEMENTS</tspan></text></g>
+<g style="animation:k39 13.96s linear infinite"><text x="22" y="648" xml:space="preserve" textLength="452.40" lengthAdjust="spacing">  <tspan class="d">────────────────────────────────────────────────────────</tspan></text></g>
+<g style="animation:k40 13.96s linear infinite"><text x="22" y="688" xml:space="preserve" textLength="226.20" lengthAdjust="spacing">  <tspan class="d">01</tspan> <tspan class="c31">✖</tspan> <tspan class="c31 b">.env is tracked by Git</tspan></text></g>
+<g style="animation:k41 13.96s linear infinite"><text x="22" y="708" xml:space="preserve" textLength="78.00" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="b d">WHY</tspan></text></g>
+<g style="animation:k42 13.96s linear infinite"><text x="22" y="728" xml:space="preserve" textLength="756.60" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="d">Anyone who can read the repository can read these values. Deleting the file later does not</tspan></text></g>
+<g style="animation:k43 13.96s linear infinite"><text x="22" y="748" xml:space="preserve" textLength="351.00" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="d">help, because it stays in Git history.</tspan></text></g>
+<g style="animation:k44 13.96s linear infinite"><text x="22" y="768" xml:space="preserve" textLength="46.80" lengthAdjust="spacing">     <tspan class="d">│</tspan></text></g>
+<g style="animation:k45 13.96s linear infinite"><text x="22" y="788" xml:space="preserve" textLength="132.60" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="b">SUGGESTION</tspan></text></g>
+<g style="animation:k46 13.96s linear infinite"><text x="22" y="808" xml:space="preserve" textLength="733.20" lengthAdjust="spacing">     <tspan class="d">│</tspan> Run 'git rm --cached .env' and add it to .gitignore. Then rotate (replace) every secret</text></g>
+<g style="animation:k47 13.96s linear infinite"><text x="22" y="828" xml:space="preserve" textLength="499.20" lengthAdjust="spacing">     <tspan class="d">│</tspan> inside it, because the old values may already be exposed.</text></g>
+<g style="animation:k48 13.96s linear infinite"><text x="22" y="868" xml:space="preserve" textLength="218.40" lengthAdjust="spacing">  <tspan class="d">02</tspan> <tspan class="c33">⚠</tspan> <tspan class="c33 b">No LICENSE file found</tspan></text></g>
+<g style="animation:k49 13.96s linear infinite"><text x="22" y="888" xml:space="preserve" textLength="78.00" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="b d">WHY</tspan></text></g>
+<g style="animation:k50 13.96s linear infinite"><text x="22" y="908" xml:space="preserve" textLength="756.60" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="d">Without a license, other people are not legally allowed to use, copy or contribute to your</tspan></text></g>
+<g style="animation:k51 13.96s linear infinite"><text x="22" y="928" xml:space="preserve" textLength="265.20" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="d">code, even if it is public.</tspan></text></g>
+<g style="animation:k52 13.96s linear infinite"><text x="22" y="948" xml:space="preserve" textLength="46.80" lengthAdjust="spacing">     <tspan class="d">│</tspan></text></g>
+<g style="animation:k53 13.96s linear infinite"><text x="22" y="968" xml:space="preserve" textLength="132.60" lengthAdjust="spacing">     <tspan class="d">│</tspan> <tspan class="b">SUGGESTION</tspan></text></g>
+<g style="animation:k54 13.96s linear infinite"><text x="22" y="988" xml:space="preserve" textLength="733.20" lengthAdjust="spacing">     <tspan class="d">│</tspan> Add a LICENSE file. MIT is a common, permissive choice (choosealicense.com can help you</text></g>
+<g style="animation:k55 13.96s linear infinite"><text x="22" y="1008" xml:space="preserve" textLength="117.00" lengthAdjust="spacing">     <tspan class="d">│</tspan> decide).</text></g>
+<g style="animation:k56 13.96s linear infinite"><text x="22" y="1048" xml:space="preserve" textLength="452.40" lengthAdjust="spacing">  <tspan class="d">────────────────────────────────────────────────────────</tspan></text></g>
+<g style="animation:k57 13.96s linear infinite"><text x="22" y="1068" xml:space="preserve" textLength="234.00" lengthAdjust="spacing">  <tspan class="c32">✔</tspan> <tspan class="b">Analysis complete</tspan> <tspan class="d">in 0.02s</tspan></text></g>
+</svg>

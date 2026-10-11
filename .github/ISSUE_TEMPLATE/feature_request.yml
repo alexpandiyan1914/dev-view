@@ -1,0 +1,23 @@
+name: Feature or new check
+description: Suggest a new check, ecosystem, or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation, not just the solution. For a new check, what goes wrong without it?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Dev View to do?
+      description: For a new check, include how serious it is, why it matters, and how to fix it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything else?
+      description: Alternatives you considered, or examples from other tools.
