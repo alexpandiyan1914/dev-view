@@ -20,6 +20,7 @@ import {
   printRemoteError,
 } from "./core/reporter.js";
 import type { ProjectContext } from "./types/result.js";
+import { VERSION } from "./version.js";
 
 // One handler for Ctrl+C: restores the cursor and cleans up any temporary files.
 installInterruptHandler();
@@ -29,7 +30,7 @@ const program = new Command();
 program
   .name("dev-view")
   .description("A clear view of your project.")
-  .version("0.1.0");
+  .version(VERSION);
 
 /** Everything after the project is obtained. Identical for local and remote: the "same engine". */
 async function analyze(ctx: ProjectContext, start: number, verbose?: boolean): Promise<void> {

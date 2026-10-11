@@ -9,6 +9,7 @@ import type { Rule } from "./rule.js";
 import { ERROR_PENALTY, WARNING_PENALTY, type Score } from "./scorer.js";
 import { SEVERITY_RANK, needsGuidance } from "./severity.js";
 import type { RemoteError } from "../input/remote.js";
+import { VERSION } from "../version.js";
 
 const WIDTH = 56;
 const LINE = "─".repeat(WIDTH);
@@ -17,6 +18,28 @@ const INDENT = "  ";
 
 const plural = (n: number, word: string): string =>
   `${n} ${word}${n === 1 ? "" : "s"}`;
+
+
+function wrapText(text: string, width: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (line && line.length + 1 + word.length > width) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = line ? `${line} ${word}` : word;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function textWidth(prefixLength: number): number {
+  const columns = process.stdout.columns || 100;
+  return Math.max(30, Math.min(columns, 100) - prefixLength - 1);
+}
 
 const ICONS = {
   pass: pc.green("✔"),
@@ -75,7 +98,7 @@ export async function printBanner(): Promise<void> {
 
   console.log();
   console.log(
-    `${INDENT}${pc.bgCyan(pc.black(pc.bold(" DEV VIEW ")))} ${pc.dim("v0.1.0")}`,
+    `${INDENT}${pc.bgCyan(pc.black(pc.bold(" DEV VIEW ")))} ${pc.dim(`v${VERSION}`)}`,
   );
   console.log(`${INDENT}${pc.dim("A clear view of your project.")}`);
   console.log(`${INDENT}${pc.dim(LINE)}`);
@@ -249,6 +272,7 @@ export function printSummary(
       const number = String(index + 1).padStart(2, "0");
       const titleColor = finding.severity === "error" ? pc.red : pc.yellow;
       const pipe = pc.dim("│");
+      const width = textWidth(7);
 
       console.log(
         `\n${INDENT}${pc.dim(number)} ${ICONS[finding.severity]} ${pc.bold(titleColor(finding.title))}`,
@@ -256,13 +280,17 @@ export function printSummary(
 
       if (finding.why) {
         console.log(`${INDENT}   ${pipe} ${pc.dim(pc.bold("WHY"))}`);
-        console.log(`${INDENT}   ${pipe} ${pc.dim(finding.why)}`);
+        for (const line of wrapText(finding.why, width)) {
+          console.log(`${INDENT}   ${pipe} ${pc.dim(line)}`);
+        }
       }
 
       if (finding.suggestion) {
         if (finding.why) console.log(`${INDENT}   ${pipe}`); // spacer between why and suggestion
         console.log(`${INDENT}   ${pipe} ${pc.bold("SUGGESTION")}`);
-        console.log(`${INDENT}   ${pipe} ${finding.suggestion}`);
+        for (const line of wrapText(finding.suggestion, width)) {
+          console.log(`${INDENT}   ${pipe} ${line}`);
+        }
       }
     });
   } else {
