@@ -1,5 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { analyzeProject, byRule, cleanupProjects, createProject, MIB, severitiesOf } from "./helpers/project.js";
+import { createLargeFileCheck, DEFAULT_LARGE_FILE_LIMITS } from "../src/rules/universal/artifacts.js";
+import { loadLocalProject } from "../src/input/local.js";
 
 afterAll(cleanupProjects);
 
@@ -154,34 +156,71 @@ describe("tracked generated folders", () => {
 });
 
 describe("large file rule", () => {
-  it("passes just under 50 MiB, warns at 50 MiB, errors at 100 MiB", async () => {
+  const KIB = 1024;
+
+  // Tiny limits keep these tests fast on every machine (Windows CI included).
+  // The boundary logic is the same whatever the numbers are; the real limits are checked separately.
+  const checkWith = (warnBytes: number, blockBytes: number) => {
+    const check = createLargeFileCheck({ warnBytes, blockBytes });
+    return async (root: string) => check(await loadLocalProject(root));
+  };
+
+  it("passes just under the warning size, warns at it, and errors at the block size", async () => {
     const root = createProject(
-      { "a.txt": "a" },
-      { git: true, sparse: { "small.bin": 49 * MIB, "medium.bin": 60 * MIB, "huge.bin": 101 * MIB } },
+      {
+        "a.txt": "a",
+        "small.bin": Buffer.alloc(49 * KIB),
+        "medium.bin": Buffer.alloc(60 * KIB),
+        "huge.bin": Buffer.alloc(101 * KIB),
+      },
+      { git: true },
     );
-    const { findings } = await analyzeProject(root);
-    const found = byRule(findings, "artifacts.large-file");
+    const found = await checkWith(50 * KIB, 100 * KIB)(root);
 
     expect(found.map((f) => [f.title, f.severity])).toEqual([
-      ["Large file: huge.bin (101 MiB)", "error"],
-      ["Large file: medium.bin (60 MiB)", "warning"],
+      ["Large file: huge.bin (101 KiB)", "error"],
+      ["Large file: medium.bin (60 KiB)", "warning"],
     ]);
   });
 
+  it("treats a file exactly at the warning size as large", async () => {
+    const root = createProject({ "edge.bin": Buffer.alloc(50 * KIB) }, { git: true });
+    const found = await checkWith(50 * KIB, 100 * KIB)(root);
+    expect(found.map((f) => f.severity)).toEqual(["warning"]);
+  });
+
   it("ignores big files that Git does not track", async () => {
-    const root = createProject({ "a.txt": "a" }, { git: true, untrackedSparse: { "big.bin": 80 * MIB } });
-    const { findings } = await analyzeProject(root);
-    expect(severitiesOf(findings, "artifacts.large-file")).toEqual(["pass"]);
+    const root = createProject({ "a.txt": "a" }, { git: true, untracked: { "big.bin": Buffer.alloc(80 * KIB) } });
+    const found = await checkWith(50 * KIB, 100 * KIB)(root);
+    expect(found.map((f) => f.severity)).toEqual(["pass"]);
   });
 
   it("lists at most 10 large files and counts the rest", async () => {
-    const sparse = Object.fromEntries(Array.from({ length: 11 }, (_, i) => [`big${i}.bin`, 50 * MIB]));
-    const root = createProject({ "a.txt": "a" }, { git: true, sparse });
-    const { findings } = await analyzeProject(root);
-    const found = byRule(findings, "artifacts.large-file");
+    const files = Object.fromEntries(Array.from({ length: 11 }, (_, i) => [`big${i}.bin`, Buffer.alloc(2 * KIB)]));
+    const root = createProject(files, { git: true });
+    const found = await checkWith(KIB, 100 * KIB)(root);
 
     expect(found).toHaveLength(11);
     expect(found[10].severity).toBe("info");
     expect(found[10].title).toBe("...and 1 more large file");
+  });
+
+  it("is silent when there is no Git to ask", async () => {
+    const root = createProject({ "big.bin": Buffer.alloc(80 * KIB) });
+    expect(await checkWith(50 * KIB, 100 * KIB)(root)).toEqual([]);
+  });
+
+  it("uses GitHub's real limits by default: warn at 50 MiB, block at 100 MiB", () => {
+    expect(DEFAULT_LARGE_FILE_LIMITS).toEqual({ warnBytes: 50 * MIB, blockBytes: 100 * MIB });
+  });
+
+  // One true end-to-end check with a real-sized file, through the whole program.
+  // Skipped on Windows, where creating and hashing big files is slow and adds no extra coverage.
+  it.skipIf(process.platform === "win32")("flags a real 51 MiB file with the default limits", async () => {
+    const root = createProject({ "a.txt": "a" }, { git: true, sparse: { "big.bin": 51 * MIB } });
+    const { findings } = await analyzeProject(root);
+
+    expect(byRule(findings, "artifacts.large-file")[0].title).toBe("Large file: big.bin (51 MiB)");
+    expect(severitiesOf(findings, "artifacts.large-file")).toEqual(["warning"]);
   });
 });

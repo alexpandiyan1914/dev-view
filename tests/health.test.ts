@@ -53,7 +53,13 @@ const SCENARIOS: Record<string, () => string> = {
   "broken Python project (empty requirements)": () => createProject({ "requirements.txt": "" }, { git: true }),
   "project with tracked secrets and generated folders": () =>
     createProject(LEAKY, { git: true, untracked: { ".env.local": "A=1" } }),
-  "project with a huge tracked file": () => createProject({ "a.txt": "a" }, { git: true, sparse: { "huge.bin": 120 * MIB } }),
+  // A 120 MiB file is slow to hash on Windows runners; the rule's logic is covered with small files elsewhere.
+  ...(process.platform === "win32"
+    ? {}
+    : {
+      "project with a huge tracked file": () =>
+        createProject({ "a.txt": "a" }, { git: true, sparse: { "huge.bin": 120 * MIB } }),
+    }),
   "project without Git": () => createProject({ "README.md": "# hi", ".env": "A=1" }),
   "unsupported project": () => createProject({ "main.c": "int main(){}" }, { git: true }),
   "unsupported committed fixture": () => fixturePath("unsupported"),
