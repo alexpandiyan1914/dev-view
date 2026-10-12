@@ -54,55 +54,74 @@ export function checkGeneratedArtifacts(ctx: ProjectContext): Finding[] {
   }));
 }
 
-const MIB = 1024 * 1024;
-const WARN_BYTES = 50 * MIB; // GitHub warns above this size
-const BLOCK_BYTES = 100 * MIB; // GitHub refuses pushes above this size
+const KIB = 1024;
+const MIB = 1024 * KIB;
 const MAX_LISTED = 10;
 
-export function checkLargeFiles(ctx: ProjectContext): Finding[] {
-  if (ctx.trackedFiles === null) return [];
+export interface LargeFileLimits {
+  warnBytes: number;
+  blockBytes: number;
+}
 
-  const tracked = new Set(ctx.trackedFiles);
-  const large = ctx.files
-    .filter((f) => tracked.has(f.path) && f.size >= WARN_BYTES)
-    .sort((a, b) => b.size - a.size);
+export const DEFAULT_LARGE_FILE_LIMITS: LargeFileLimits = {
+  warnBytes: 50 * MIB,
+  blockBytes: 100 * MIB,
+};
 
-  if (large.length === 0) {
-    return [
-      {
+function formatSize(bytes: number): string {
+  return bytes >= MIB ? `${Math.round(bytes / MIB)} MiB` : `${Math.round(bytes / KIB)} KiB`;
+}
+
+
+export function createLargeFileCheck(limits: LargeFileLimits = DEFAULT_LARGE_FILE_LIMITS) {
+  return function checkLargeFiles(ctx: ProjectContext): Finding[] {
+    if (ctx.trackedFiles === null) return [];
+
+    const tracked = new Set(ctx.trackedFiles);
+    const large = ctx.files
+      .filter((f) => tracked.has(f.path) && f.size >= limits.warnBytes)
+      .sort((a, b) => b.size - a.size);
+
+    if (large.length === 0) {
+      return [
+        {
+          ruleId: "artifacts.large-file",
+          category: "Artifacts",
+          severity: "pass",
+          title: "No large files are tracked by Git",
+          message: `No tracked file is over ${formatSize(limits.warnBytes)}`,
+        },
+      ];
+    }
+
+    const findings = large.slice(0, MAX_LISTED).map((file): Finding => {
+      const blocked = file.size >= limits.blockBytes;
+      return {
         ruleId: "artifacts.large-file",
         category: "Artifacts",
-        severity: "pass",
-        title: "No large files are tracked by Git",
-        message: "No tracked file is over 50 MiB",
-      },
-    ];
-  }
-
-  const findings = large.slice(0, MAX_LISTED).map((file): Finding => {
-    const blocked = file.size >= BLOCK_BYTES;
-    return {
-      ruleId: "artifacts.large-file",
-      category: "Artifacts",
-      severity: blocked ? "error" : "warning",
-      title: `Large file: ${file.path} (${Math.round(file.size / MIB)} MiB)`,
-      message: blocked
-        ? "GitHub refuses files larger than 100 MiB"
-        : "GitHub warns about files larger than 50 MiB",
-      why: "Git keeps every version of a file forever, so big files make cloning slow and the repository heavy.",
-      suggestion:
-        "Use Git LFS or host the file elsewhere (for example a GitHub Release). If it is already committed, it must also be removed from history to shrink the repository.",
-    };
-  });
-
-  if (large.length > MAX_LISTED) {
-    findings.push({
-      ruleId: "artifacts.large-file",
-      category: "Artifacts",
-      severity: "info",
-      title: `...and ${large.length - MAX_LISTED} more large ${large.length - MAX_LISTED === 1 ? "file" : "files"}`,
-      message: "Only the largest files are listed",
+        severity: blocked ? "error" : "warning",
+        title: `Large file: ${file.path} (${formatSize(file.size)})`,
+        message: blocked
+          ? `GitHub refuses files larger than ${formatSize(limits.blockBytes)}`
+          : `GitHub warns about files larger than ${formatSize(limits.warnBytes)}`,
+        why: "Git keeps every version of a file forever, so big files make cloning slow and the repository heavy.",
+        suggestion:
+          "Use Git LFS or host the file elsewhere (for example a GitHub Release). If it is already committed, it must also be removed from history to shrink the repository.",
+      };
     });
-  }
-  return findings;
+
+    if (large.length > MAX_LISTED) {
+      const more = large.length - MAX_LISTED;
+      findings.push({
+        ruleId: "artifacts.large-file",
+        category: "Artifacts",
+        severity: "info",
+        title: `...and ${more} more large ${more === 1 ? "file" : "files"}`,
+        message: "Only the largest files are listed",
+      });
+    }
+    return findings;
+  };
 }
+
+export const checkLargeFiles = createLargeFileCheck();
