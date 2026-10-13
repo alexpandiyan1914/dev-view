@@ -5,9 +5,7 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
-
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-10-13
 
 First public release.
 
@@ -29,6 +27,7 @@ First public release.
 - A simple, documented score: 100, minus 10 per error, minus 3 per warning.
 - A concise report with `--verbose` for full detail, wrapped to the terminal width.
 - Clean Ctrl+C handling: the terminal is restored and temporary files are removed.
+- Runs on Node.js 22.12 or newer, tested on Node 22 and 24 on Linux and on Node 22 on Windows.
 
-[Unreleased]: https://github.com/alexpandiyan1914/dev-view/compare/v0.1.0...HEAD
+[First Release]: https://github.com/alexpandiyan1914/dev-view/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/alexpandiyan1914/dev-view/commits/main

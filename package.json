@@ -1,21 +1,8 @@
 {
   "name": "dev-view",
   "version": "0.1.0",
-  "description": "A clear view of your project's health. Finds problems like committed secrets and generated files, explains why they matter and how to fix them. Works on local folders and public GitHub repositories.",
-  "keywords": [
-    "cli",
-    "developer-tools",
-    "project-health",
-    "repository",
-    "hygiene",
-    "audit",
-    "secrets",
-    "gitignore",
-    "env",
-    "nodejs",
-    "python",
-    "github"
-  ],
+  "description": "A command-line tool that checks your project for problems like committed secrets, tracked build folders and missing licenses, then explains why they matter and how to fix them. Works on local folders and public GitHub repositories.",
+  "keywords": ["cli", "developer-tools", "project-health", "repository", "hygiene", "audit", "secrets", "dotenv", "gitignore", "git", "github", "nodejs", "python", "best-practices"],
   "homepage": "https://github.com/alexpandiyan1914/dev-view#readme",
   "bugs": {
     "url": "https://github.com/alexpandiyan1914/dev-view/issues"
@@ -42,7 +29,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:package": "node scripts/check-package.mjs",
-    "prepublishOnly": "npm run typecheck && npm test && npm run build && node scripts/check-package.mjs"
+    "prepublishOnly": "npm run typecheck && npm test && npm run build && node scripts/check-package.mjs --release"
   },
   "author": "Alexpandiyan",
   "license": "MIT",

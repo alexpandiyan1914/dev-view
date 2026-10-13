@@ -9,6 +9,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
+const RELEASE = process.argv.includes("--release");
 const REQUIRED_FILES = ["package.json", "README.md", "LICENSE", "CHANGELOG.md", "dist/cli.js"];
 const MAX_UNPACKED_BYTES = 300 * 1024;
 
@@ -84,6 +85,40 @@ for (const file of ["package.json", "LICENSE", "README.md", "CHANGELOG.md"]) {
     continue; // already reported as missing above
   }
   check(!placeholder.test(text), `${file} has no leftover placeholder`, `${file} still contains a placeholder (YOUR NAME / TODO)`);
+}
+
+// ---- release-only checks (publishing cannot be undone) ---------------------------------------------
+if (RELEASE) {
+  const git = (args) => execSync(`git ${args}`, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+
+  try {
+    const branch = git("rev-parse --abbrev-ref HEAD");
+    check(branch === "main", "releasing from the main branch", `you are on "${branch}"; publish from main`);
+
+    check(git("status --porcelain") === "", "no uncommitted changes", "there are uncommitted changes; commit or stash them first");
+
+    let upstream = "";
+    try {
+      upstream = git("rev-parse @{u}");
+    } catch {
+      // no upstream configured
+    }
+    check(
+      upstream !== "" && upstream === git("rev-parse HEAD"),
+      "main matches the copy on GitHub",
+      "main differs from GitHub (run `git pull`, or `git push` your commits) so you would publish code nobody can see",
+    );
+  } catch {
+    failures.push("could not read the Git state; is this a Git repository?");
+  }
+
+  const changelog = readFileSync("CHANGELOG.md", "utf8");
+  const heading = new RegExp(`^## \\[${pkg.version.replaceAll(".", "\\.")}\\] - \\d{4}-\\d{2}-\\d{2}\\s*$`, "m");
+  check(
+    heading.test(changelog),
+    `CHANGELOG has a dated entry for ${pkg.version}`,
+    `CHANGELOG.md needs a heading like "## [${pkg.version}] - YYYY-MM-DD" (not "Unreleased")`,
+  );
 }
 
 // ---- report -----------------------------------------------------------------------------------------
