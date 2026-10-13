@@ -1,13 +1,12 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="Dev View: a clear view of your project" width="760">
+  <img src="https://raw.githubusercontent.com/alexpandiyan1914/dev-view/main/docs/banner.svg" alt="Dev View: a clear view of your project" width="760">
 </p>
 
 <p align="center">
   <a href="https://github.com/alexpandiyan1914/dev-view/actions/workflows/ci.yml"><img src="https://github.com/alexpandiyan1914/dev-view/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
-  <!-- After the first npm release, add: <a href="https://www.npmjs.com/package/dev-view"><img src="https://img.shields.io/npm/v/dev-view.svg" alt="npm version"></a> -->
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+  <a href="https://www.npmjs.com/package/dev-view"><img src="https://img.shields.io/npm/v/dev-view.svg" alt="npm version"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D22.12-339933?logo=node.js&logoColor=white" alt="Node.js 22.12 or newer">
-  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="Pull requests welcome"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
 </p>
 
 <p align="center">
@@ -15,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/demo.svg" alt="Dev View analyzing a project: it finds a committed .env file and a missing LICENSE, and gives the project a score of 87 out of 100" width="820">
+  <img src="https://raw.githubusercontent.com/alexpandiyan1914/dev-view/main/docs/demo.svg" alt="Dev View analyzing a project: it finds a committed .env file and a missing LICENSE, and gives the project a score of 87 out of 100" width="820">
 </p>
 
 ## Why Dev View?
@@ -48,6 +47,15 @@ By default the report is short. Add `--verbose` (or `-v`) to see every check tha
 ```bash
 npx dev-view local -v
 ```
+
+Prefer to install it once and use it everywhere?
+
+```bash
+npm install -g dev-view
+dev-view local
+```
+
+**npm:** [npmjs.com/package/dev-view](https://www.npmjs.com/package/dev-view)
 
 ### Commands
 
