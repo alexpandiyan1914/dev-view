@@ -181,6 +181,32 @@ describe("the command line", () => {
     expect(out).toContain("Everything looks good");
   });
 
+  it("analyzes a Java project and shows it in the overview", () => {
+    const root = createProject(
+      {
+        "README.md": "# hi",
+        LICENSE: "MIT",
+        ".gitignore": ".env\n",
+        "pom.xml": "<project><properties><maven.compiler.release>21</maven.compiler.release></properties></project>",
+        mvnw: "#!/bin/sh",
+        ".mvn/wrapper/maven-wrapper.properties": "distributionUrl=x",
+        "src/test/java/AppTest.java": "class AppTest {}",
+      },
+      { git: true },
+    );
+    const { code, out } = runCli("local", root);
+
+    expect(code).toBe(0);
+    expect(out).toContain("Java");
+    expect(out).toContain("100/100");
+  });
+
+  it("lists the Java checks in 'dev-view rules'", () => {
+    const { out } = runCli("rules");
+    expect(out).toContain("Java");
+    expect(out).toContain("A Maven or Gradle wrapper is committed");
+  });
+
   it("explains problems in a broken project", () => {
     const root = createProject({ ".env": "SECRET=1" }, { git: true });
     const { out } = runCli("local", root);
