@@ -25,6 +25,13 @@ describe("detection on the committed fixtures", () => {
     expect(names(python.technologies)).toEqual(["FastAPI"]);
   });
 
+  it("finds Java, Maven and Spring Boot", async () => {
+    const [java] = await detect(fixturePath("java-spring"));
+    expect(java.id).toBe("java");
+    expect(java.evidence).toEqual(["pom.xml"]);
+    expect(names(java.technologies)).toEqual(["Maven", "Spring Boot"]);
+  });
+
   it("still detects Node.js when package.json is broken", async () => {
     const [node] = await detect(fixturePath("broken-node"));
     expect(node.id).toBe("node");
@@ -90,10 +97,53 @@ describe("Python detection details", () => {
   });
 });
 
+describe("Java detection details", () => {
+  it("detects Gradle from build.gradle.kts and a framework from its plugins", async () => {
+    const root = createProject({ "build.gradle.kts": 'plugins { id("io.quarkus") version "3.15.1" }' });
+    const [java] = await detect(root);
+    expect(names(java.technologies)).toEqual(["Gradle", "Quarkus"]);
+  });
+
+  it("detects Gradle from settings.gradle alone", async () => {
+    const root = createProject({ "settings.gradle": "rootProject.name = 'x'" });
+    const [java] = await detect(root);
+    expect(java.evidence).toEqual(["settings.gradle"]);
+    expect(names(java.technologies)).toEqual(["Gradle"]);
+  });
+
+  it("detects Android and Micronaut", async () => {
+    const android = createProject({ "build.gradle": "plugins { id 'com.android.application' }" });
+    expect(names((await detect(android))[0].technologies)).toEqual(["Gradle", "Android"]);
+
+    const micronaut = createProject({ "pom.xml": "<dependency><groupId>io.micronaut</groupId></dependency>" });
+    expect(names((await detect(micronaut))[0].technologies)).toEqual(["Maven", "Micronaut"]);
+  });
+
+  it("ignores frameworks that appear only in comments", async () => {
+    const root = createProject({
+      "pom.xml": "<project><!-- org.springframework.boot --></project>",
+      "build.gradle": "// io.quarkus\n/* io.micronaut */\n",
+    });
+    const [java] = await detect(root);
+    expect(names(java.technologies)).toEqual(["Maven", "Gradle"]);
+  });
+
+  it("lists every marker file as evidence", async () => {
+    const root = createProject({ "pom.xml": "<project/>", "build.gradle": "" });
+    const [java] = await detect(root);
+    expect(java.evidence).toEqual(["pom.xml", "build.gradle"]);
+  });
+});
+
 describe("mixed and empty projects", () => {
   it("detects several ecosystems in one project", async () => {
     const root = createProject({ "package.json": "{}", "requirements.txt": "flask==3.0.0" });
     expect((await detect(root)).map((e) => e.id)).toEqual(["node", "python"]);
+  });
+
+  it("detects Java next to Node.js (a Spring backend with a web frontend)", async () => {
+    const root = createProject({ "package.json": "{}", "pom.xml": "<project/>" });
+    expect((await detect(root)).map((e) => e.id)).toEqual(["node", "java"]);
   });
 
   it("detects nothing in an empty folder", async () => {

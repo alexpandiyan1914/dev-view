@@ -310,6 +310,7 @@ export function printSummary(
 const ECOSYSTEM_LABELS: Record<EcosystemId, string> = {
   node: "Node.js",
   python: "Python",
+  java: "Java",
 };
 
 /**
