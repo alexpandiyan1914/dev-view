@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { analyzeProject, byRule, cleanupProjects, createProject, severitiesOf } from "./helpers/project.js";
+import { analyzeProject, byRule, cleanupProjects, createProject, severitiesOf, type Files } from "./helpers/project.js";
 
 afterAll(cleanupProjects);
 
@@ -200,6 +200,150 @@ describe("Python: version and tests", () => {
   });
 });
 
+const POM = "<project><modelVersion>4.0.0</modelVersion></project>";
+
+describe("Java: version", () => {
+  it("passes when the compiler release is set in pom.xml", async () => {
+    const root = createProject({ "pom.xml": "<project><properties><maven.compiler.release>21</maven.compiler.release></properties></project>" });
+    const { findings } = await analyzeProject(root);
+    expect(severitiesOf(findings, "java.version-declared")).toEqual(["pass"]);
+  });
+
+  it("passes for java.version, a Gradle toolchain, and a .java-version file", async () => {
+    const files: Files[] = [
+      { "pom.xml": "<project><properties><java.version>17</java.version></properties></project>" },
+      { "build.gradle": "java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }" },
+      { "build.gradle.kts": "kotlin { jvmToolchain(21) }" },
+      { "pom.xml": POM, ".java-version": "21" },
+    ];
+    for (const set of files) {
+      const { findings } = await analyzeProject(createProject(set));
+      expect(severitiesOf(findings, "java.version-declared")).toEqual(["pass"]);
+    }
+  });
+
+  it("reports an undeclared version as information, with advice for the build tool in use", async () => {
+    const maven = await analyzeProject(createProject({ "pom.xml": POM }));
+    const gradle = await analyzeProject(createProject({ "build.gradle": "plugins { id 'java' }" }));
+
+    expect(severitiesOf(maven.findings, "java.version-declared")).toEqual(["info"]);
+    expect(byRule(maven.findings, "java.version-declared")[0].suggestion).toContain("pom.xml");
+    expect(byRule(gradle.findings, "java.version-declared")[0].suggestion).toContain("build.gradle");
+  });
+
+  it("does not count a version that is only in a comment", async () => {
+    const root = createProject({ "pom.xml": "<project><!-- <java.version>21</java.version> --></project>" });
+    const { findings } = await analyzeProject(root);
+    expect(severitiesOf(findings, "java.version-declared")).toEqual(["info"]);
+  });
+});
+
+describe("Java: tests", () => {
+  it("finds tests under src/test and files named like FooTest.java", async () => {
+    const a = await analyzeProject(createProject({ "pom.xml": POM, "src/test/java/AppTest.java": "class AppTest {}" }));
+    const b = await analyzeProject(createProject({ "pom.xml": POM, "app/UserServiceTests.java": "class X {}" }));
+    expect(severitiesOf(a.findings, "java.tests-exist")).toEqual(["pass"]);
+    expect(severitiesOf(b.findings, "java.tests-exist")).toEqual(["pass"]);
+  });
+
+  it("finds tests in a sub-module", async () => {
+    const root = createProject({ "pom.xml": POM, "core/src/test/java/CoreTest.java": "class CoreTest {}" });
+    const { findings } = await analyzeProject(root);
+    expect(severitiesOf(findings, "java.tests-exist")).toEqual(["pass"]);
+  });
+
+  it("warns when there are no tests, and ignores test resources, fixtures and build output", async () => {
+    const root = createProject({
+      "pom.xml": POM,
+      "src/main/java/App.java": "class App {}",
+      "src/test/resources/application.properties": "a=1",
+      "tests/fixtures/FooTest.java": "class FooTest {}",
+      "target/test-classes/BarTest.java": "class BarTest {}",
+    });
+    const { findings } = await analyzeProject(root);
+    expect(severitiesOf(findings, "java.tests-exist")).toEqual(["warning"]);
+  });
+});
+
+describe("Java: build wrapper", () => {
+  const mavenWrapper = { mvnw: "#!/bin/sh", ".mvn/wrapper/maven-wrapper.properties": "distributionUrl=x" };
+  const gradleWrapper = { gradlew: "#!/bin/sh", "gradle/wrapper/gradle-wrapper.properties": "distributionUrl=x" };
+
+  it("passes with a Maven wrapper or a Gradle wrapper", async () => {
+    const maven = await analyzeProject(createProject({ "pom.xml": POM, ...mavenWrapper }));
+    const gradle = await analyzeProject(createProject({ "build.gradle": "", ...gradleWrapper }));
+    expect(severitiesOf(maven.findings, "java.wrapper")).toEqual(["pass"]);
+    expect(severitiesOf(gradle.findings, "java.wrapper")).toEqual(["pass"]);
+  });
+
+  it("warns when there is no wrapper and names the build tool", async () => {
+    const { findings } = await analyzeProject(createProject({ "pom.xml": POM }));
+    const [wrapper] = byRule(findings, "java.wrapper");
+    expect(wrapper.severity).toBe("warning");
+    expect(wrapper.title).toContain("Maven");
+  });
+
+  it("warns when the script exists but its properties file is missing", async () => {
+    const { findings } = await analyzeProject(createProject({ "build.gradle": "", gradlew: "#!/bin/sh" }));
+    expect(severitiesOf(findings, "java.wrapper")).toEqual(["warning"]);
+  });
+
+  it("names only the tool that is missing when both build files exist", async () => {
+    const root = createProject({ "pom.xml": POM, "build.gradle": "", ...mavenWrapper });
+    const [wrapper] = byRule((await analyzeProject(root)).findings, "java.wrapper");
+    expect(wrapper.title).toBe("No build wrapper for Gradle (gradlew)");
+  });
+});
+
+describe("Java: dependency versions", () => {
+  it("passes when every version is exact", async () => {
+    const root = createProject({
+      "pom.xml": "<project><dependency><version>2.17.1</version></dependency></project>",
+      "build.gradle": "dependencies { implementation 'org.slf4j:slf4j-api:2.0.13' }",
+    });
+    const { findings } = await analyzeProject(root);
+    expect(severitiesOf(findings, "java.dependencies-pinned")).toEqual(["pass"]);
+  });
+
+  it("warns about LATEST and RELEASE in pom.xml", async () => {
+    const root = createProject({
+      "pom.xml": "<project><dependency><version>LATEST</version></dependency><dependency><version> RELEASE </version></dependency></project>",
+    });
+    const [finding] = byRule((await analyzeProject(root)).findings, "java.dependencies-pinned");
+    expect(finding.severity).toBe("warning");
+    expect(finding.title).toBe("2 dependencies use a floating version");
+  });
+
+  it("warns about '+' and latest.release in Gradle files", async () => {
+    const root = createProject({
+      "build.gradle": "dependencies {\n  implementation 'com.google.guava:guava:+'\n  api \"org.foo:bar:1.+\"\n}",
+      "build.gradle.kts": 'dependencies { implementation("org.foo:baz:latest.release") }',
+    });
+    const [finding] = byRule((await analyzeProject(root)).findings, "java.dependencies-pinned");
+    expect(finding.title).toBe("3 dependencies use a floating version");
+  });
+
+  it("ignores floating versions that are commented out, and does not flag a URL or a plain plus sign", async () => {
+    const root = createProject({
+      "build.gradle":
+        "// implementation 'a:b:+'\nrepositories { maven { url 'https://repo.example.com/maven2' } }\nversion = '1.0.0+build5'\n",
+      "pom.xml": "<project><!-- <version>LATEST</version> --></project>",
+    });
+    const { findings } = await analyzeProject(root);
+    expect(severitiesOf(findings, "java.dependencies-pinned")).toEqual(["pass"]);
+  });
+});
+
+describe("Java: tracked .gradle folder", () => {
+  it("is reported as a generated folder", async () => {
+    const root = createProject({ "build.gradle": "", ".gradle/8.5/fileHashes/a.bin": "x" }, { git: true });
+    const { findings } = await analyzeProject(root);
+    const tracked = byRule(findings, "artifacts.generated-tracked");
+    expect(tracked.map((f) => f.severity)).toEqual(["warning"]);
+    expect(tracked[0].title).toContain(".gradle/");
+  });
+});
+
 describe("ecosystem rules only run for detected ecosystems", () => {
   it("does not run Node rules on a Python project, or Python rules on a Node project", async () => {
     const python = await analyzeProject(createProject({ "requirements.txt": "flask==3.0.0" }));
@@ -209,8 +353,17 @@ describe("ecosystem rules only run for detected ecosystems", () => {
     expect(node.findings.some((f) => f.ruleId.startsWith("python."))).toBe(false);
   });
 
+  it("runs Java rules only on Java projects", async () => {
+    const java = await analyzeProject(createProject({ "pom.xml": POM }));
+    const node = await analyzeProject(createProject({ "package.json": "{}" }));
+
+    expect(java.findings.some((f) => f.ruleId.startsWith("java."))).toBe(true);
+    expect(java.findings.some((f) => f.ruleId.startsWith("node.") || f.ruleId.startsWith("python."))).toBe(false);
+    expect(node.findings.some((f) => f.ruleId.startsWith("java."))).toBe(false);
+  });
+
   it("runs only universal rules on an unsupported project", async () => {
     const { findings } = await analyzeProject(createProject({ "main.c": "int main(){}" }));
-    expect(findings.some((f) => f.ruleId.startsWith("node.") || f.ruleId.startsWith("python."))).toBe(false);
+    expect(findings.some((f) => f.ruleId.startsWith("node.") || f.ruleId.startsWith("python.") || f.ruleId.startsWith("java."))).toBe(false);
   });
 });

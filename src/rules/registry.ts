@@ -5,6 +5,7 @@ import { checkEnvFiles, checkPrivateKeys } from "./universal/security.js";
 import { checkGeneratedArtifacts, checkLargeFiles } from "./universal/artifacts.js";
 import { checkNodePackageJson, checkNodeLockfile, checkNodeTests } from "./node/package.js";
 import { checkPythonRequirements, checkPythonVersion, checkPythonTests } from "./python/project.js";
+import { checkJavaVersion, checkJavaTests, checkJavaWrapper, checkJavaDependencies } from "./java/project.js";
 
 // The order here is the order categories appear in the report.
 export const RULES: Rule[] = [
@@ -52,6 +53,26 @@ export const RULES: Rule[] = [
     run: checkPythonVersion,
   },
   { id: "python.tests", ecosystem: "python", description: "The project has test files", run: checkPythonTests },
+
+  {
+    id: "java.version",
+    ecosystem: "java",
+    description: "The project declares which Java version it needs",
+    run: checkJavaVersion,
+  },
+  { id: "java.tests", ecosystem: "java", description: "The project has test files", run: checkJavaTests },
+  {
+    id: "java.wrapper",
+    ecosystem: "java",
+    description: "A Maven or Gradle wrapper is committed",
+    run: checkJavaWrapper,
+  },
+  {
+    id: "java.dependencies",
+    ecosystem: "java",
+    description: "Dependencies use exact versions, not LATEST or '+'",
+    run: checkJavaDependencies,
+  },
 ];
 
 // Two rules with the same id would be confusing. Fail loudly the moment this file loads.
