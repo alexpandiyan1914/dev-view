@@ -1,5 +1,5 @@
 export type Severity = "pass" | "info" | "warning" | "error";
-export type EcosystemId = "node" | "python";
+export type EcosystemId = "node" | "python" | "java";
 
 export interface Finding {
   ruleId: string;

@@ -88,7 +88,7 @@ describe("the real rule registry", () => {
 
   it("only uses known ecosystems", () => {
     for (const rule of RULES) {
-      if (rule.ecosystem) expect(["node", "python"]).toContain(rule.ecosystem);
+      if (rule.ecosystem) expect(["node", "python", "java"]).toContain(rule.ecosystem);
     }
   });
 });

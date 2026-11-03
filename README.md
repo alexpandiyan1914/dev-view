@@ -6,6 +6,7 @@
   <a href="https://github.com/alexpandiyan1914/dev-view/actions/workflows/ci.yml"><img src="https://github.com/alexpandiyan1914/dev-view/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="https://www.npmjs.com/package/dev-view"><img src="https://img.shields.io/npm/v/dev-view.svg" alt="npm version"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D22.12-339933?logo=node.js&logoColor=white" alt="Node.js 22.12 or newer">
+  <a href="https://www.npmjs.com/package/dev-view"><img src="https://img.shields.io/npm/dt/dev-view?style=flat-square&logo=npm&color=brightgreen" alt="Total Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
 </p>
 
@@ -79,7 +80,7 @@ dev-view local
 | `.env` files not covered by `.gitignore` | warning | One `git add .` away from a leak. |
 | Private keys tracked by Git | **error** | Detected by file content, so public certificates are not flagged. |
 | `node_modules`, virtual environments tracked | **error** | They can be reinstalled and bloat the repository. |
-| `dist`, `build`, `target`, `.next`, `coverage`, `__pycache__` tracked | warning | Generated files create noisy changes. |
+| `dist`, `build`, `target`, `.gradle`, `.next`, `coverage`, `__pycache__` tracked | warning | Generated files create noisy changes. |
 | Large tracked files (50 MiB and up) | warning, **error** at 100 MiB | GitHub warns at 50 MiB and refuses 100 MiB. |
 
 **Node.js projects**
@@ -102,6 +103,15 @@ dev-view local
 | `requirements.txt` is not empty and its packages have versions | warning |
 | Test files exist | warning |
 | Python version declared (`.python-version`, `requires-python`, ...) | info |
+
+**Java projects** (Maven and Gradle; Spring Boot, Quarkus, Micronaut and Android are recognized)
+
+| Check | Severity |
+| --- | --- |
+| Test files exist (`src/test`, `*Test.java`, ...) | warning |
+| Maven or Gradle wrapper committed (`mvnw`, `gradlew`) | warning |
+| No floating dependency versions (`LATEST`, `RELEASE`, `1.+`, `latest.release`) | warning |
+| Java version declared (`maven.compiler.release`, Gradle toolchain, `.java-version`, ...) | info |
 
 Run `dev-view rules` to see the same list from the tool itself.
 
@@ -153,7 +163,7 @@ Dev View is young, and it is honest about what it does not do yet.
 - `dev-view ci`: exit codes and a compact format for pipelines
 - JSON output for other tools
 - An optional config file to tune or disable rules
-- More ecosystems, starting with Java and Spring Boot
+- Framework-specific checks (Spring Boot first) and more ecosystems
 
 ## Run from source
 
@@ -182,7 +192,7 @@ How it is built:
        │
    input layer ──────────►  ProjectContext   (files, Git-tracked files, ignored files)
                                   │
-   detectors  ───────────►  Node.js? Python? frameworks?
+   detectors  ───────────►  Node.js? Python? Java? frameworks?
                                   │
    rule engine ──────────►  findings  (problem + severity + why + suggestion)
                                   │
@@ -196,7 +206,7 @@ src/
   cli.ts          commands and options
   input/          local folders, Git, remote cloning and URL validation
   detectors/      which ecosystems and frameworks are present
-  rules/          the checks: universal/, node/, python/, and the registry
+  rules/          the checks: universal/, node/, python/, java/, and the registry
   core/           scanner, rule engine, scorer, reporter
 tests/            unit tests, fixture projects, and end-to-end CLI tests
 ```

@@ -1,8 +1,8 @@
 {
   "name": "dev-view",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A command-line tool that checks your project for problems like committed secrets, tracked build folders and missing licenses, then explains why they matter and how to fix them. Works on local folders and public GitHub repositories.",
-  "keywords": ["cli", "developer-tools", "project-health", "repository", "hygiene", "audit", "secrets", "dotenv", "gitignore", "git", "github", "nodejs", "python", "best-practices"],
+  "keywords": ["cli", "developer-tools", "project-health", "repository", "hygiene", "audit", "secrets", "dotenv", "gitignore", "git", "github", "nodejs", "python", "java", "maven", "gradle", "best-practices"],
   "homepage": "https://github.com/alexpandiyan1914/dev-view#readme",
   "bugs": {
     "url": "https://github.com/alexpandiyan1914/dev-view/issues"

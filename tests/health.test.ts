@@ -33,6 +33,17 @@ const HEALTHY_PYTHON: Files = {
   "tests/test_app.py": "def test_ok(): pass",
 };
 
+const HEALTHY_JAVA: Files = {
+  "README.md": "# Healthy",
+  LICENSE: "MIT License",
+  ".gitignore": "target/\n.gradle/\nbuild/\n.env\n",
+  "pom.xml": "<project><properties><maven.compiler.release>21</maven.compiler.release></properties></project>",
+  mvnw: "#!/bin/sh",
+  ".mvn/wrapper/maven-wrapper.properties": "distributionUrl=x",
+  "src/main/java/App.java": "class App {}",
+  "src/test/java/AppTest.java": "class AppTest {}",
+};
+
 const LEAKY: Files = {
   ".env": "API_KEY=not-a-real-secret",
   ".env.example": "API_KEY=",
@@ -49,8 +60,13 @@ const LEAKY: Files = {
 const SCENARIOS: Record<string, () => string> = {
   "healthy Node.js project": () => createProject(HEALTHY_NODE, { git: true }),
   "healthy Python project": () => createProject(HEALTHY_PYTHON, { git: true }),
+  "healthy Java project": () => createProject(HEALTHY_JAVA, { git: true }),
   "broken Node.js project (invalid package.json)": () => createProject({ "package.json": "{ nope" }, { git: true }),
   "broken Python project (empty requirements)": () => createProject({ "requirements.txt": "" }, { git: true }),
+  "bare Java project (no tests, no wrapper, floating version)": () =>
+    createProject({ "pom.xml": "<project><dependency><version>LATEST</version></dependency></project>" }, { git: true }),
+  "Java project with only a settings.gradle": () => createProject({ "settings.gradle": "" }, { git: true }),
+  "Java fixture (Spring Boot)": () => fixturePath("java-spring"),
   "project with tracked secrets and generated folders": () =>
     createProject(LEAKY, { git: true, untracked: { ".env.local": "A=1" } }),
   // A 120 MiB file is slow to hash on Windows runners; the rule's logic is covered with small files elsewhere.
@@ -67,6 +83,8 @@ const SCENARIOS: Record<string, () => string> = {
   "Git repository with no files": () => createProject({}, { git: true }),
   "mixed Node.js and Python project": () =>
     createProject({ "package.json": "{}", "requirements.txt": "flask==3.0.0" }, { git: true }),
+  "mixed Node.js and Java project": () =>
+    createProject({ "package.json": "{}", "pom.xml": "<project/>" }, { git: true }),
 };
 
 describe.each(Object.entries(SCENARIOS))("%s", (_name, build) => {
@@ -102,6 +120,12 @@ describe("expected scores", () => {
 
   it("gives a healthy Python project a perfect score", async () => {
     const { score } = await analyzeProject(createProject(HEALTHY_PYTHON, { git: true }));
+    expect(score.value).toBe(100);
+  });
+
+  it("gives a healthy Java project a perfect score", async () => {
+    const { score, findings } = await analyzeProject(createProject(HEALTHY_JAVA, { git: true }));
+    expect(findings.filter((f) => f.severity === "warning" || f.severity === "error")).toEqual([]);
     expect(score.value).toBe(100);
   });
 

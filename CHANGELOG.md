@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-11-03
+
+Java support.
+
+### Added
+
+- Detection of Java projects from `pom.xml`, `build.gradle`, `build.gradle.kts` and
+  `settings.gradle(.kts)`, with Maven and Gradle shown as technologies.
+- Detection of Spring Boot, Quarkus, Micronaut and Android projects.
+- Java checks: test files exist, a Maven or Gradle wrapper is committed, no floating dependency
+  versions (`LATEST`, `RELEASE`, `1.+`, `latest.release`), and the Java version is declared.
+- A tracked `.gradle` folder is now reported as a generated folder.
+
 ## [0.1.0] - 2026-10-13
 
 First public release.
@@ -30,4 +43,5 @@ First public release.
 - Runs on Node.js 22.12 or newer, tested on Node 22 and 24 on Linux and on Node 22 on Windows.
 
 [First Release]: https://github.com/alexpandiyan1914/dev-view/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/alexpandiyan1914/dev-view/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/alexpandiyan1914/dev-view/commits/main

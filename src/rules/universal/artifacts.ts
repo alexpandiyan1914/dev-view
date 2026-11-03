@@ -6,6 +6,7 @@ const GENERATED_DIRS = new Map<string, Severity>([
   [".venv", "error"],
   ["venv", "error"],
   ["__pycache__", "warning"],
+  [".gradle", "warning"],
   ["dist", "warning"],
   ["build", "warning"],
   ["target", "warning"],
