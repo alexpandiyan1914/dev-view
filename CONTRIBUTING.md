@@ -71,7 +71,8 @@ folder or URL → input layer → ProjectContext → detectors → rule engine �
 - `src/input/` turns a folder or a URL into a `ProjectContext` (files, tracked files and ignored files).
 - `src/detectors/` determine which ecosystems and technologies are present.
 - `src/rules/` contain the checks. A rule examines the project and returns findings. Rules never print.
-- `src/core/` contains the scanner, rule engine, scorer and reporter.
+- `src/core/` contains the scanner, rule engine, scorer, reporter and the report builder.
+- `src/export/` turns the report into Markdown or JSON for AI chatbots (`--export`).
 
 Local and remote mode only differ in the input layer, so a new rule automatically works for both.
 
@@ -160,7 +161,8 @@ If it passes, the rule follows the project's contracts.
 
 - **Explain, don't just flag.** Every warning and error must include both `why` and `suggestion`.
 - **Avoid false alarms.** A noisy tool gets ignored. Prefer evidence over guesses.
-- **Read-only.** Never modify the analyzed project and never execute its code.
+- **Read-only.** Never modify the analyzed project and never execute its code. Rules never write
+  files. The only code that writes anything is the `--export` report in `src/export/`.
 - **Fail gently.** Missing files, invalid JSON and Git problems must not crash a run.
 - **One rule, one idea.** Keep rules small, focused and independent.
 
