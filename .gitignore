@@ -4,6 +4,9 @@ dist/
 coverage/
 *.tgz
 
+# reports saved with --export while trying Dev View on itself
+dev-view-report.*
+
 # secrets
 .env
 .env.*

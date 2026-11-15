@@ -345,6 +345,33 @@ export function printRuleList(rules: Rule[]): void {
   console.log();
 }
 
+/**
+ * Tells the user where the AI-ready report went, and what to do with it.
+ * `gitignoreHint` is true when the file landed inside a Git project that does not ignore it.
+ */
+export function printExportSaved(
+  shownPath: string,
+  issueCount: number,
+  gitignoreHint: boolean,
+): void {
+  console.log(`${INDENT}${ICONS.arrow} ${pc.bold("Report saved to")} ${pc.cyan(shownPath)}`);
+
+  if (issueCount > 0) {
+    console.log(
+      `${INDENT}  ${pc.dim("Tip: paste this file into your AI chatbot (Claude, ChatGPT, Gemini...) to fix the issues.")}`,
+    );
+  } else {
+    console.log(`${INDENT}  ${pc.dim("Nothing needs fixing right now, but the report is there if you want it.")}`);
+  }
+
+  if (gitignoreHint) {
+    console.log(
+      `${INDENT}  ${pc.yellow("Note:")} ${pc.dim("this file is inside your project. Add it to .gitignore so it is not committed.")}`,
+    );
+  }
+  console.log();
+}
+
 export function printRemoteStart(url: string): void {
   heading("Remote analysis");
   console.log(`${INDENT}${pc.dim("Repository")}   ${pc.cyan(url)}`);

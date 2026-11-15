@@ -25,7 +25,7 @@ Most tools tell you **that** something is wrong. Dev View also tells you **why i
 - **Every problem comes with a reason and a fix.** Each warning and error carries a short "why" and a concrete suggestion. A rule that cannot explain itself does not ship.
 - **It checks what really breaks projects.** Committed `.env` files and private keys, `node_modules` or `dist` tracked by Git, huge files, missing `.gitignore`, no lockfile, placeholder test scripts.
 - **One engine, two modes.** Analyze a folder on your machine, or any public GitHub repository by its URL. Both run the same checks.
-- **Safe by design.** It only reads. It never changes your files and never runs your project's code. Local mode uses no network, and nothing is ever uploaded.
+- **Safe by design.** It only reads. It never changes your files and never runs your project's code. Local mode uses no network, and nothing is ever uploaded. The only file it can create is the report you ask for with `--export`.
 - **Honest scoring.** A simple, documented score, deliberately kept secondary to the findings.
 
 ## Quick start
@@ -66,6 +66,40 @@ dev-view local
 | `dev-view remote <url>` | Analyze a public repository by its `https://` URL. |
 | `dev-view rules` | List every check Dev View can run. |
 | `dev-view --help` | Show help. `--version` shows the version. |
+
+Both `local` and `remote` also accept `--export`, `--out`, `--stdout`, `--max-issues` and `--force`: see [Fix issues with your favorite AI](#fix-issues-with-your-favorite-ai).
+
+## Fix issues with your favorite AI
+
+Dev View never edits your project, so it cannot fix anything for you. What it can do is hand the findings to something that can. Add `--export` and Dev View saves a report written for AI chatbots such as Claude, ChatGPT and Gemini:
+
+```bash
+npx dev-view local --export md
+```
+
+1. Open `dev-view-report.md`.
+2. Paste it into your AI chatbot.
+3. The AI answers with the exact change or command for each issue. You apply them, so you stay in control.
+
+The Markdown report opens with an instruction for the AI, then the project context (detected technologies and score), then every error and warning with why it matters and the suggested fix. If nothing needs fixing, the report says so.
+
+| Option | What it does |
+| --- | --- |
+| `--export md` or `--export json` | Save a report. Markdown is for chatbots, JSON is for scripts and CI. Nothing is saved unless you ask. |
+| `--out <file>` | Choose where to save it. Default: `dev-view-report.md` or `.json` in the current folder. |
+| `--stdout` | Print only the report (no banner, no colors) instead of saving it, so you can pipe or copy it. |
+| `--max-issues <n>` | Keep only the `n` most serious issues, for very large projects. The report says how many were left out. |
+| `--force` | Replace the report file if it already exists. Without it, Dev View asks first (or refuses when it cannot ask). |
+
+```bash
+npx dev-view local ./my-project --export json --out report.json
+npx dev-view remote https://github.com/user/project --export md
+npx dev-view local --export md --stdout | pbcopy     # macOS; use clip on Windows
+```
+
+**What is in the report, and what never is.** It lists file names, rule names and short messages. It never contains file contents (a tracked `.env` is reported by name, never by value), and it uses paths inside your project, never your full folder path. Many similar findings, such as dozens of large files, are merged into one issue. Still, read the report before you paste it into any online service.
+
+**Keep it out of Git.** If the report is saved inside your project, add `dev-view-report.*` to your `.gitignore`. Dev View reminds you when it is not ignored.
 
 ## What it checks
 
@@ -141,7 +175,7 @@ Passes and info lines never change the score. It counts problems, not files, so 
 
 ## Safety and privacy
 
-- **Read-only.** Dev View never writes to, deletes, or changes anything in the project it analyzes.
+- **Read-only.** Dev View never changes or deletes anything in the project it analyzes. The only file it can ever create is the report you explicitly ask for with `--export`, and it never replaces an existing file without your confirmation or `--force`.
 - **Your code is never executed.** It reads files and asks Git read-only questions (`git ls-files`, `git check-ignore`). It does not run your scripts, tests, or build.
 - **No telemetry, no uploads.** Local mode makes no network requests at all.
 - **Remote mode is careful.** Only plain `https://` addresses are accepted (no SSH, `file://`, or credentials in the URL). It makes a shallow, single-snapshot clone into a temporary folder, never asks for passwords or opens login windows, skips Git LFS downloads, and always deletes the temporary copy, even when you press Ctrl+C.
@@ -161,7 +195,6 @@ Dev View is young, and it is honest about what it does not do yet.
 ## Roadmap
 
 - `dev-view ci`: exit codes and a compact format for pipelines
-- JSON output for other tools
 - An optional config file to tune or disable rules
 - Framework-specific checks (Spring Boot first) and more ecosystems
 
@@ -207,7 +240,8 @@ src/
   input/          local folders, Git, remote cloning and URL validation
   detectors/      which ecosystems and frameworks are present
   rules/          the checks: universal/, node/, python/, java/, and the registry
-  core/           scanner, rule engine, scorer, reporter
+  core/           scanner, rule engine, scorer, reporter, report builder
+  export/         Markdown and JSON reports for AI chatbots (--export)
 tests/            unit tests, fixture projects, and end-to-end CLI tests
 ```
 

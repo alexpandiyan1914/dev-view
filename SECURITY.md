@@ -39,7 +39,10 @@ Reports we especially care about:
 - Git is started without a shell, with `--` before the address, with terminal prompts and credential
   helpers disabled, and with Git LFS downloads skipped.
 - Remote analysis uses a shallow clone in a temporary folder that is always deleted, including on Ctrl+C.
-- Dev View only reads. It never writes to the analyzed project and never executes its code.
+- Dev View only reads. It never changes the analyzed project and never executes its code. The one
+  file it can create is the report you ask for with `--export`. It will not replace an existing file
+  unless you confirm or pass `--force`, and the report never contains file contents or your full
+  folder path.
 - Build files (`package.json`, `requirements.txt`, `pyproject.toml`, `pom.xml`, `build.gradle` and
   similar) are read as plain text. Dev View never runs npm, pip, Maven, Gradle or any project
   script. Wrapper scripts such as `mvnw` and `gradlew` are only checked for existence, never run.
