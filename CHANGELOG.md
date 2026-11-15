@@ -5,6 +5,35 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-11-15
+
+Fix issues with your favorite AI chatbot.
+
+### Added
+
+- `--export md|json` on `dev-view local` and `dev-view remote`: saves the errors and warnings, each
+  with why it matters and the suggested fix, as a report you can paste into Claude, ChatGPT, Gemini
+  or any other AI chatbot. The Markdown report opens with an instruction for the AI and the project
+  context (detected technologies, score). The JSON report is meant for scripts and CI jobs.
+- `--out <file>` chooses where the report is saved. The default is `dev-view-report.md` or
+  `dev-view-report.json` in the current folder.
+- `--stdout` prints only the report, with no banner or colors, so it can be piped or copied.
+- `--max-issues <n>` keeps the report short by including only the n most serious issues.
+- `--force` replaces an existing report file. Without it, Dev View asks first in a terminal and
+  refuses everywhere else, so a report never overwrites a file by accident.
+- Many similar findings (for example dozens of large files) are merged into one issue in the report.
+- The export options are checked before anything is scanned or cloned, so a mistake fails at once.
+- A reminder to add the report to `.gitignore` when it is saved inside a Git project that does not
+  ignore it.
+
+### Safety
+
+- A report lists file names, rule names and messages only. It never contains file contents (a
+  tracked `.env` is reported by name, never by value) and never contains your full folder path.
+- Line breaks and control characters are removed from every line of a report, and the Markdown
+  asks the AI to treat the report as information, not as instructions.
+- Dev View still never changes your project. The only file it can create is the report you ask for.
+
 ## [0.2.0] - 2026-11-03
 
 Java support.
@@ -43,5 +72,6 @@ First public release.
 - Runs on Node.js 22.12 or newer, tested on Node 22 and 24 on Linux and on Node 22 on Windows.
 
 [First Release]: https://github.com/alexpandiyan1914/dev-view/compare/v0.1.0...HEAD
+[0.3.0]: https://github.com/alexpandiyan1914/dev-view/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/alexpandiyan1914/dev-view/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/alexpandiyan1914/dev-view/commits/main
